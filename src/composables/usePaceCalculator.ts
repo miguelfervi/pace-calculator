@@ -1,74 +1,56 @@
 import { ref } from "vue";
 import { useTimeUtils } from "./useTimeUtils";
 
+type DistanceUnit = "km" | "m";
+
 /**
- * Composable para la calculadora de ritmo
- * Maneja el estado y la lógica de cálculo
+ * Pace calculator composable
+ * Manages state and calculation logic
  */
 export function usePaceCalculator() {
-  const { timeToSeconds, secondsToTime, secondsToPace } = useTimeUtils();
+  const { timeToSeconds, secondsToTime } = useTimeUtils();
 
-  // Estado del formulario
   const pace = ref<string>("");
   const distance = ref<number | null>(null);
-  const time = ref<string>("");
+  const distanceUnit = ref<DistanceUnit>("km");
   const result = ref<string>("");
 
   /**
-   * Calcula el valor faltante basado en los dos valores proporcionados
+   * Converts distance to kilometers
    */
-  const calculate = (): void => {
-    const filledValues = [
-      pace.value,
-      distance.value,
-      time.value,
-    ].filter(Boolean);
-
-    if (filledValues.length !== 2) {
-      result.value = "Introduce exactamente dos valores";
-      return;
-    }
-
-    // Ritmo + distancia → tiempo
-    if (pace.value && distance.value && !time.value) {
-      const totalSeconds = timeToSeconds(pace.value) * distance.value;
-      result.value = `Tiempo: ${secondsToTime(totalSeconds)}`;
-      return;
-    }
-
-    // Distancia + tiempo → ritmo
-    if (distance.value && time.value && !pace.value) {
-      const paceInSeconds = timeToSeconds(time.value) / distance.value;
-      result.value = `Ritmo: ${secondsToPace(paceInSeconds)} min/km`;
-      return;
-    }
-
-    // Ritmo + tiempo → distancia
-    if (pace.value && time.value && !distance.value) {
-      const calculatedDistance =
-        timeToSeconds(time.value) / timeToSeconds(pace.value);
-      result.value = `Distancia: ${calculatedDistance.toFixed(2)} km`;
-      return;
-    }
+  const distanceToKm = (value: number, unit: DistanceUnit): number => {
+    return unit === "m" ? value / 1000 : value;
   };
 
   /**
-   * Limpia todos los campos del formulario
+   * Calculates time based on pace and distance
+   */
+  const calculate = (): void => {
+    if (!pace.value || !distance.value) {
+      result.value = "Introduce ritmo y distancia";
+      return;
+    }
+
+    const distanceInKm = distanceToKm(distance.value, distanceUnit.value);
+    const totalSeconds = timeToSeconds(pace.value) * distanceInKm;
+    result.value = `Tiempo: ${secondsToTime(totalSeconds)}`;
+  };
+
+  /**
+   * Clears all form fields
    */
   const clear = (): void => {
     pace.value = "";
     distance.value = null;
-    time.value = "";
+    distanceUnit.value = "km";
     result.value = "";
   };
 
   return {
-    // Estado
     pace,
     distance,
-    time,
+    distanceUnit,
     result,
-    // Métodos
     calculate,
     clear,
   };

@@ -1,24 +1,22 @@
 /**
- * Utilidades para conversión de tiempo
+ * Time conversion utilities
  */
 export function useTimeUtils() {
   /**
-   * Convierte un string de tiempo (mm:ss o hh:mm:ss) a segundos
+   * Converts a time string (mm:ss or hh:mm:ss) to seconds
    */
   const timeToSeconds = (value: string): number => {
     const parts: number[] = value.split(":").map(Number);
 
     if (parts.length === 2) {
-      // mm:ss
       return parts[0] * 60 + parts[1];
     }
 
-    // hh:mm:ss
     return parts[0] * 3600 + parts[1] * 60 + parts[2];
   };
 
   /**
-   * Convierte segundos a formato hh:mm:ss
+   * Converts seconds to hh:mm:ss format
    */
   const secondsToTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -29,7 +27,7 @@ export function useTimeUtils() {
   };
 
   /**
-   * Convierte segundos a formato de ritmo mm:ss
+   * Converts seconds to pace format mm:ss
    */
   const secondsToPace = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
