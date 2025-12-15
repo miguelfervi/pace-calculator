@@ -25,6 +25,15 @@ export function useTimeUtils() {
     throw new Error("Invalid time format");
   };
 
+  const paceToSeconds = (value: string): number => {
+    const parts = value.split(":");
+    const minutes = Number(parts[0]);
+    const secondsPart = parts[1].includes(".") ? parts[1].split(".") : [parts[1], "0"];
+    const seconds = Number(secondsPart[0]);
+    const decimals = secondsPart[1] ? Number(`0.${secondsPart[1]}`) : 0;
+    return minutes * SECONDS_PER_MINUTE + seconds + decimals;
+  };
+
   const secondsToTime = (seconds: number): string => {
     if (seconds < 0) return "0:00:00";
     
@@ -36,16 +45,22 @@ export function useTimeUtils() {
   };
 
   const secondsToPace = (seconds: number): string => {
-    if (seconds < 0) return "0:00";
+    if (seconds < 0) return "0:00.0";
     
     const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
-    const secs = Math.round(seconds % SECONDS_PER_MINUTE);
+    const secs = seconds % SECONDS_PER_MINUTE;
+    const secsInt = Math.floor(secs);
+    const secsDecimal = Math.round((secs - secsInt) * 10);
 
-    return `${minutes}:${formatTimeComponent(secs)}`;
+    if (secsDecimal === 0) {
+      return `${minutes}:${formatTimeComponent(secsInt)}`;
+    }
+    return `${minutes}:${formatTimeComponent(secsInt)}.${secsDecimal}`;
   };
 
   return {
     timeToSeconds,
+    paceToSeconds,
     secondsToTime,
     secondsToPace,
   };

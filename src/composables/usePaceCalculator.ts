@@ -6,7 +6,7 @@ type DistanceUnit = "km" | "m";
 type CalculatedField = "pace" | "distance" | "time" | null;
 
 const TIME_SCHEMA = z.string().regex(/^(\d{1,2}):([0-5]?\d)(:([0-5]?\d))?$/);
-const PACE_SCHEMA = z.string().regex(/^(\d{1,2}):([0-5]?\d)$/);
+const PACE_SCHEMA = z.string().regex(/^(\d{1,2}):([0-5]?\d)(\.\d)?$/);
 const DISTANCE_SCHEMA = z.number().positive().min(0.001);
 
 const CONVERSION_FACTORS = {
@@ -19,7 +19,7 @@ const CONVERSION_FACTORS = {
  * Manages state and calculation logic
  */
 export function usePaceCalculator() {
-  const { timeToSeconds, secondsToTime, secondsToPace } = useTimeUtils();
+  const { timeToSeconds, paceToSeconds, secondsToTime, secondsToPace } = useTimeUtils();
 
   const pace = ref<string>("");
   const distance = ref<number | null>(null);
@@ -33,7 +33,9 @@ export function usePaceCalculator() {
   };
 
   const formatDistance = (valueInKm: number, unit: DistanceUnit): string => {
-    const value = unit === "m" ? Math.round(valueInKm * 1000) : valueInKm.toFixed(2);
+    const value = unit === "m" 
+      ? Math.round(valueInKm * 1000) 
+      : valueInKm.toFixed(2);
     return `${value} ${unit}`;
   };
 
@@ -50,7 +52,7 @@ export function usePaceCalculator() {
   };
 
   const calculateTime = (paceValue: string, distanceInKm: number): void => {
-    const totalSeconds = timeToSeconds(paceValue) * distanceInKm;
+    const totalSeconds = paceToSeconds(paceValue) * distanceInKm;
     const timeFormatted = secondsToTime(totalSeconds);
     time.value = timeFormatted;
     result.value = `Tiempo: ${timeFormatted}`;
@@ -66,7 +68,7 @@ export function usePaceCalculator() {
   };
 
   const calculateDistance = (paceValue: string, timeValue: string): void => {
-    const calculatedDistanceInKm = timeToSeconds(timeValue) / timeToSeconds(paceValue);
+    const calculatedDistanceInKm = timeToSeconds(timeValue) / paceToSeconds(paceValue);
     const distanceValue = distanceUnit.value === "m" 
       ? Math.round(calculatedDistanceInKm * 1000)
       : calculatedDistanceInKm;

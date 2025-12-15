@@ -11,7 +11,7 @@
         </span>
         <input
           v-model="pace"
-          placeholder="4:30"
+          placeholder="4:30.5"
           :class="paceClasses"
         />
       </label>
