@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-md mx-auto mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+  <div class="max-w-md mx-auto mt-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
     <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
       Calculadora de Ritmo
     </h1>
