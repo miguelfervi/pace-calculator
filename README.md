@@ -10,4 +10,4 @@ Enter any two values (pace, distance, or time) and the app will calculate the mi
 - Result: 1:40
 
 ## Demo
-https://YOUR_USERNAME.github.io/pace-calculator/
+https://miguelfervi.github.io/pace-calculator/
