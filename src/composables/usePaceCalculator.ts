@@ -12,7 +12,7 @@ export function usePaceCalculator() {
 
   const pace = ref<string>("");
   const distance = ref<number | null>(null);
-  const distanceUnit = ref<DistanceUnit>("km");
+  const distanceUnit = ref<DistanceUnit>("m");
   const result = ref<string>("");
 
   /**
@@ -42,7 +42,7 @@ export function usePaceCalculator() {
   const clear = (): void => {
     pace.value = "";
     distance.value = null;
-    distanceUnit.value = "km";
+    distanceUnit.value = "m";
     result.value = "";
   };
 
