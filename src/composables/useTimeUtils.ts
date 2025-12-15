@@ -1,39 +1,47 @@
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 3600;
+const PAD_LENGTH = 2;
+
+const formatTimeComponent = (value: number): string => {
+  return String(value).padStart(PAD_LENGTH, "0");
+};
+
 /**
  * Time conversion utilities
  */
 export function useTimeUtils() {
-  /**
-   * Converts a time string (mm:ss or hh:mm:ss) to seconds
-   */
   const timeToSeconds = (value: string): number => {
-    const parts: number[] = value.split(":").map(Number);
+    const parts = value.split(":").map(Number);
+    const [first, second, third] = parts;
 
     if (parts.length === 2) {
-      return parts[0] * 60 + parts[1];
+      return first * SECONDS_PER_MINUTE + second;
     }
 
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    if (parts.length === 3) {
+      return first * SECONDS_PER_HOUR + second * SECONDS_PER_MINUTE + third;
+    }
+
+    throw new Error("Invalid time format");
   };
 
-  /**
-   * Converts seconds to hh:mm:ss format
-   */
   const secondsToTime = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = Math.round(seconds % 60);
+    if (seconds < 0) return "0:00:00";
+    
+    const hours = Math.floor(seconds / SECONDS_PER_HOUR);
+    const minutes = Math.floor((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+    const secs = Math.round(seconds % SECONDS_PER_MINUTE);
 
-    return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    return `${hours}:${formatTimeComponent(minutes)}:${formatTimeComponent(secs)}`;
   };
 
-  /**
-   * Converts seconds to pace format mm:ss
-   */
   const secondsToPace = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.round(seconds % 60);
+    if (seconds < 0) return "0:00";
+    
+    const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
+    const secs = Math.round(seconds % SECONDS_PER_MINUTE);
 
-    return `${minutes}:${String(secs).padStart(2, "0")}`;
+    return `${minutes}:${formatTimeComponent(secs)}`;
   };
 
   return {

@@ -12,7 +12,7 @@
         <input
           v-model="pace"
           placeholder="4:30"
-          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition"
+          :class="paceClasses"
         />
       </label>
 
@@ -24,7 +24,7 @@
           <input
             v-model.number="distance"
             :placeholder="distanceUnit === 'km' ? '0.4' : '400'"
-            class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition"
+            :class="distanceClasses"
           />
           <select
             v-model="distanceUnit"
@@ -34,6 +34,17 @@
             <option value="km">km</option>
           </select>
         </div>
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+          Tiempo total
+        </span>
+        <input
+          v-model="time"
+          placeholder="0:50:00"
+          :class="timeClasses"
+        />
       </label>
 
       <div class="flex gap-3 pt-2">
@@ -62,15 +73,38 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { usePaceCalculator } from "../composables/usePaceCalculator";
 
 const {
   pace,
   distance,
   distanceUnit,
+  time,
   result,
+  calculatedField,
   calculate,
   clear,
 } = usePaceCalculator();
+
+const baseInputClasses = "w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition";
+const normalInputClasses = "border-gray-300 dark:border-gray-600";
+const calculatedInputClasses = "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-400";
+
+const paceClasses = computed(() => [
+  baseInputClasses,
+  calculatedField.value === "pace" ? calculatedInputClasses : normalInputClasses,
+]);
+
+const distanceClasses = computed(() => [
+  "flex-1",
+  baseInputClasses,
+  calculatedField.value === "distance" ? calculatedInputClasses : normalInputClasses,
+]);
+
+const timeClasses = computed(() => [
+  baseInputClasses,
+  calculatedField.value === "time" ? calculatedInputClasses : normalInputClasses,
+]);
 </script>
 
