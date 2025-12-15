@@ -1,12 +1,12 @@
 {
   "name": "pace-calculator",
   "private": true,
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "npm run build && gh-pages -d dist",
     "version:bump": "node scripts/bump-version.js",
     "prepare": "node scripts/setup-git-hooks.js"
   },
