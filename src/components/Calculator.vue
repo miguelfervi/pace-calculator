@@ -30,8 +30,8 @@
             v-model="distanceUnit"
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition"
           >
-            <option value="km">km</option>
             <option value="m">m</option>
+            <option value="km">km</option>
           </select>
         </div>
       </label>
