@@ -27,14 +27,6 @@ echo "💅 Formatting code..."
 npm run format
 git add .
 
-# Run tests before commit
-echo "🧪 Running tests..."
-npm test
-if [ $? -ne 0 ]; then
-  echo "❌ Tests failed. Commit aborted."
-  exit 1
-fi
-
 # Auto-increment version on commit
 npm run version:bump
 git add package.json
@@ -60,7 +52,7 @@ fi
   }
 
   console.log("✅ Git hooks configured successfully");
-  console.log("  - pre-commit: Runs lint, format, tests and bumps version");
+  console.log("  - pre-commit: Runs lint, format and bumps version");
   console.log("  - pre-push: Runs tests before push");
 } catch (error) {
   console.error("❌ Error setting up git hooks:", error);
