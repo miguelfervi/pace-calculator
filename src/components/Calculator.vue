@@ -15,7 +15,7 @@
             :visible="!!pace && pace.trim() !== ''"
             :on-click="clearPace"
             title="Limpiar ritmo"
-            :aria-label="'Limpiar ritmo'"
+            aria-label="Limpiar ritmo"
           />
         </div>
       </label>
@@ -35,7 +35,7 @@
               :visible="distance !== null && distance !== undefined"
               :on-click="clearDistance"
               title="Limpiar distancia"
-              :aria-label="'Limpiar distancia'"
+              aria-label="Limpiar distancia"
             />
           </div>
           <select
@@ -58,7 +58,7 @@
             :visible="!!time && time.trim() !== ''"
             :on-click="clearTime"
             title="Limpiar tiempo"
-            :aria-label="'Limpiar tiempo'"
+            aria-label="Limpiar tiempo"
           />
         </div>
       </label>
