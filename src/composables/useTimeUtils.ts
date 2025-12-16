@@ -26,17 +26,19 @@ export function useTimeUtils() {
   };
 
   const paceToSeconds = (value: string): number => {
-    const parts = value.split(":");
-    const minutes = Number(parts[0]);
-    const secondsPart = parts[1].includes(".") ? parts[1].split(".") : [parts[1], "0"];
-    const seconds = Number(secondsPart[0]);
-    const decimals = secondsPart[1] ? Number(`0.${secondsPart[1]}`) : 0;
+    const [minutesStr, secondsStr] = value.split(":");
+    const minutes = Number(minutesStr);
+    const [secondsInt, decimalsStr] = secondsStr.includes(".")
+      ? secondsStr.split(".")
+      : [secondsStr, "0"];
+    const seconds = Number(secondsInt);
+    const decimals = decimalsStr ? Number(`0.${decimalsStr}`) : 0;
     return minutes * SECONDS_PER_MINUTE + seconds + decimals;
   };
 
   const secondsToTime = (seconds: number): string => {
     if (seconds < 0) return "0:00:00";
-    
+
     const hours = Math.floor(seconds / SECONDS_PER_HOUR);
     const minutes = Math.floor((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
     const secs = Math.round(seconds % SECONDS_PER_MINUTE);
@@ -46,7 +48,7 @@ export function useTimeUtils() {
 
   const secondsToPace = (seconds: number): string => {
     if (seconds < 0) return "0:00.0";
-    
+
     const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
     const secs = seconds % SECONDS_PER_MINUTE;
     const secsInt = Math.floor(secs);
@@ -65,4 +67,3 @@ export function useTimeUtils() {
     secondsToPace,
   };
 }
-

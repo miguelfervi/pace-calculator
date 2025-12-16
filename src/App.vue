@@ -1,5 +1,7 @@
 <template>
-  <div class="w-full min-h-screen flex flex-col items-center justify-start pt-8 px-4 bg-gray-50 dark:bg-gray-900">
+  <div
+    class="w-full min-h-screen flex flex-col items-center justify-start pt-8 px-4 bg-gray-50 dark:bg-gray-900"
+  >
     <Calculator />
   </div>
 </template>

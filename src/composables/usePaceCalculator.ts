@@ -33,9 +33,7 @@ export function usePaceCalculator() {
   };
 
   const formatDistance = (valueInKm: number, unit: DistanceUnit): string => {
-    const value = unit === "m" 
-      ? Math.round(valueInKm * 1000) 
-      : valueInKm.toFixed(2);
+    const value = unit === "m" ? Math.round(valueInKm * 1000) : valueInKm.toFixed(2);
     return `${value} ${unit}`;
   };
 
@@ -69,9 +67,10 @@ export function usePaceCalculator() {
 
   const calculateDistance = (paceValue: string, timeValue: string): void => {
     const calculatedDistanceInKm = timeToSeconds(timeValue) / paceToSeconds(paceValue);
-    const distanceValue = distanceUnit.value === "m" 
-      ? Math.round(calculatedDistanceInKm * 1000)
-      : calculatedDistanceInKm;
+    const distanceValue =
+      distanceUnit.value === "m"
+        ? Math.round(calculatedDistanceInKm * 1000)
+        : calculatedDistanceInKm;
     distance.value = distanceValue;
     result.value = `Distancia: ${formatDistance(calculatedDistanceInKm, distanceUnit.value)}`;
     calculatedField.value = "distance";
@@ -81,11 +80,13 @@ export function usePaceCalculator() {
     calculatedField.value = null;
     result.value = "";
 
-    const hasPace = isValidPace(pace.value);
-    const hasDistance = isValidDistance(distance.value);
-    const hasTime = isValidTime(time.value);
+    const validations = {
+      pace: isValidPace(pace.value),
+      distance: isValidDistance(distance.value),
+      time: isValidTime(time.value),
+    };
 
-    const filledCount = [hasPace, hasDistance, hasTime].filter(Boolean).length;
+    const filledCount = Object.values(validations).filter(Boolean).length;
 
     if (filledCount !== 2) {
       result.value = "Introduce exactamente dos valores";
@@ -93,16 +94,18 @@ export function usePaceCalculator() {
     }
 
     try {
-      if (hasPace && hasDistance) {
-        const distanceInKm = distanceToKm(distance.value!, distanceUnit.value);
-        calculateTime(pace.value, distanceInKm);
-      } else if (hasDistance && hasTime) {
-        const distanceInKm = distanceToKm(distance.value!, distanceUnit.value);
-        calculatePace(time.value, distanceInKm);
-      } else if (hasPace && hasTime) {
+      const distanceInKm = validations.distance
+        ? distanceToKm(distance.value!, distanceUnit.value)
+        : null;
+
+      if (validations.pace && validations.distance) {
+        calculateTime(pace.value, distanceInKm!);
+      } else if (validations.distance && validations.time) {
+        calculatePace(time.value, distanceInKm!);
+      } else if (validations.pace && validations.time) {
         calculateDistance(pace.value, time.value);
       }
-    } catch (error) {
+    } catch {
       result.value = "Error al realizar el cálculo. Verifica los valores ingresados.";
     }
   };
@@ -119,6 +122,25 @@ export function usePaceCalculator() {
     calculatedField.value = null;
   };
 
+  const clearField = (field: CalculatedField): void => {
+    if (field === "pace") {
+      pace.value = "";
+    } else if (field === "distance") {
+      distance.value = null;
+    } else if (field === "time") {
+      time.value = "";
+    }
+
+    if (calculatedField.value === field) {
+      calculatedField.value = null;
+      result.value = "";
+    }
+  };
+
+  const clearPace = (): void => clearField("pace");
+  const clearDistance = (): void => clearField("distance");
+  const clearTime = (): void => clearField("time");
+
   return {
     pace,
     distance,
@@ -128,6 +150,8 @@ export function usePaceCalculator() {
     calculatedField,
     calculate,
     clear,
+    clearPace,
+    clearDistance,
+    clearTime,
   };
 }
-
