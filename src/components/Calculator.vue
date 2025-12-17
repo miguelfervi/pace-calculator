@@ -4,64 +4,58 @@
       Calculadora de Ritmo
     </h1>
 
+    <div
+      class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md"
+    >
+      <p class="text-sm text-amber-800 dark:text-amber-200">
+        <span class="font-semibold">💡 Información:</span> Asegúrate de seleccionar la unidad antes
+        de introducir el valor en cada campo.
+      </p>
+    </div>
+
     <div class="space-y-4">
-      <label class="block">
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-          Ritmo (min/km)
-        </span>
-        <div class="relative">
-          <input v-model="pace" placeholder="4:30.5" :class="paceClasses" />
-          <ClearButton
-            :visible="!!pace && pace.trim() !== ''"
-            :on-click="clearPace"
-            title="Limpiar ritmo"
-            aria-label="Limpiar ritmo"
-          />
-        </div>
-      </label>
+      <InputWithSelector
+        label="Ritmo"
+        :model-value="pace"
+        :selected-unit="paceUnit"
+        :placeholder="pacePlaceholder"
+        :options="paceOptions"
+        :is-visible="!!pace && pace.trim() !== ''"
+        clear-title="Limpiar ritmo"
+        :input-classes="paceClasses"
+        @update:model-value="val => (pace = val as string)"
+        @update:selected-unit="val => (paceUnit = val as 'min' | 'sec')"
+        @clear="clearPace"
+      />
 
-      <label class="block">
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-          Distancia
-        </span>
-        <div class="flex gap-2">
-          <div class="relative flex-1">
-            <input
-              v-model.number="distance"
-              :placeholder="distanceUnit === 'km' ? '0.4' : '400'"
-              :class="distanceClasses"
-            />
-            <ClearButton
-              :visible="distance !== null && distance !== undefined"
-              :on-click="clearDistance"
-              title="Limpiar distancia"
-              aria-label="Limpiar distancia"
-            />
-          </div>
-          <select
-            v-model="distanceUnit"
-            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition"
-          >
-            <option value="m">m</option>
-            <option value="km">km</option>
-          </select>
-        </div>
-      </label>
+      <InputWithSelector
+        label="Distancia"
+        :model-value="distance"
+        :selected-unit="distanceUnit"
+        :placeholder="distancePlaceholder"
+        :options="distanceOptions"
+        input-type="number"
+        :is-visible="distance !== null && distance !== undefined"
+        clear-title="Limpiar distancia"
+        :input-classes="distanceClasses"
+        @update:model-value="val => (distance = val as number | null)"
+        @update:selected-unit="val => (distanceUnit = val as 'km' | 'm')"
+        @clear="clearDistance"
+      />
 
-      <label class="block">
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-          Tiempo total
-        </span>
-        <div class="relative">
-          <input v-model="time" placeholder="0:50:00" :class="timeClasses" />
-          <ClearButton
-            :visible="!!time && time.trim() !== ''"
-            :on-click="clearTime"
-            title="Limpiar tiempo"
-            aria-label="Limpiar tiempo"
-          />
-        </div>
-      </label>
+      <InputWithSelector
+        label="Tiempo total"
+        :model-value="time"
+        :selected-unit="timeUnit"
+        :placeholder="timePlaceholder"
+        :options="timeOptions"
+        :is-visible="!!time && time.trim() !== ''"
+        clear-title="Limpiar tiempo"
+        :input-classes="timeClasses"
+        @update:model-value="val => (time = val as string)"
+        @update:selected-unit="val => (timeUnit = val as 'min' | 'sec')"
+        @clear="clearTime"
+      />
 
       <div class="flex gap-3 pt-2">
         <button
@@ -91,13 +85,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { usePaceCalculator } from "../composables/usePaceCalculator";
-import ClearButton from "./ClearButton.vue";
+import InputWithSelector from "./InputWithSelector.vue";
 
 const {
   pace,
+  paceUnit,
   distance,
   distanceUnit,
   time,
+  timeUnit,
   result,
   calculatedField,
   calculate,
@@ -123,4 +119,23 @@ const getInputClasses = (field: "pace" | "distance" | "time") => {
 const paceClasses = getInputClasses("pace");
 const distanceClasses = getInputClasses("distance");
 const timeClasses = getInputClasses("time");
+
+const pacePlaceholder = computed(() => (paceUnit.value === "min" ? "4:30.5" : "270.5"));
+const distancePlaceholder = computed(() => (distanceUnit.value === "km" ? "0.4" : "400"));
+const timePlaceholder = computed(() => (timeUnit.value === "min" ? "50 o 50:00" : "3000"));
+
+const paceOptions = [
+  { value: "min", label: "min" },
+  { value: "sec", label: "seg" },
+];
+
+const distanceOptions = [
+  { value: "m", label: "m" },
+  { value: "km", label: "km" },
+];
+
+const timeOptions = [
+  { value: "min", label: "min" },
+  { value: "sec", label: "seg" },
+];
 </script>

@@ -1,5 +1,4 @@
 const SECONDS_PER_MINUTE = 60;
-const SECONDS_PER_HOUR = 3600;
 const PAD_LENGTH = 2;
 
 const formatTimeComponent = (value: number): string => {
@@ -11,21 +10,29 @@ const formatTimeComponent = (value: number): string => {
  */
 export function useTimeUtils() {
   const timeToSeconds = (value: string): number => {
+    if (!value.includes(":")) {
+      const minutes = Number(value);
+      if (isNaN(minutes)) {
+        throw new Error("Invalid time format");
+      }
+      return minutes * SECONDS_PER_MINUTE;
+    }
+
     const parts = value.split(":").map(Number);
-    const [first, second, third] = parts;
+    const [first, second] = parts;
 
     if (parts.length === 2) {
       return first * SECONDS_PER_MINUTE + second;
     }
 
-    if (parts.length === 3) {
-      return first * SECONDS_PER_HOUR + second * SECONDS_PER_MINUTE + third;
-    }
-
     throw new Error("Invalid time format");
   };
 
-  const paceToSeconds = (value: string): number => {
+  const paceToSeconds = (value: string, unit: "min" | "sec" = "min"): number => {
+    if (unit === "sec") {
+      return Number(value);
+    }
+
     const [minutesStr, secondsStr] = value.split(":");
     const minutes = Number(minutesStr);
     const [secondsInt, decimalsStr] = secondsStr.includes(".")
@@ -37,17 +44,20 @@ export function useTimeUtils() {
   };
 
   const secondsToTime = (seconds: number): string => {
-    if (seconds < 0) return "0:00:00";
+    if (seconds < 0) return "0:00";
 
-    const hours = Math.floor(seconds / SECONDS_PER_HOUR);
-    const minutes = Math.floor((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+    const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
     const secs = Math.round(seconds % SECONDS_PER_MINUTE);
 
-    return `${hours}:${formatTimeComponent(minutes)}:${formatTimeComponent(secs)}`;
+    return `${minutes}:${formatTimeComponent(secs)}`;
   };
 
-  const secondsToPace = (seconds: number): string => {
-    if (seconds < 0) return "0:00.0";
+  const secondsToPace = (seconds: number, unit: "min" | "sec" = "min"): string => {
+    if (seconds < 0) return unit === "sec" ? "0.0" : "0:00.0";
+
+    if (unit === "sec") {
+      return seconds.toFixed(1);
+    }
 
     const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
     const secs = seconds % SECONDS_PER_MINUTE;

@@ -24,6 +24,9 @@ export default [
         require: "readonly",
         __dirname: "readonly",
         __filename: "readonly",
+        Event: "readonly",
+        HTMLInputElement: "readonly",
+        HTMLSelectElement: "readonly",
       },
     },
     plugins: {
@@ -52,6 +55,11 @@ export default [
         parser: typescriptParser,
         ecmaVersion: "latest",
         sourceType: "module",
+      },
+      globals: {
+        Event: "readonly",
+        HTMLInputElement: "readonly",
+        HTMLSelectElement: "readonly",
       },
     },
     plugins: {
