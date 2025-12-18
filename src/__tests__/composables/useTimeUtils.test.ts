@@ -45,6 +45,34 @@ describe("useTimeUtils", () => {
       expect(paceToSeconds("300.5", "sec")).toBeCloseTo(300.5, 1);
       expect(paceToSeconds("225.7", "sec")).toBeCloseTo(225.7, 1);
     });
+
+    it("should handle pace without decimals (min unit)", () => {
+      expect(paceToSeconds("4:30", "min")).toBe(270);
+      expect(paceToSeconds("5:00", "min")).toBe(300);
+    });
+
+    it("should handle pace without decimalsStr", () => {
+      const result = paceToSeconds("4:30", "min");
+      expect(result).toBe(270);
+    });
+
+    it("should use min unit as default when unit is not provided", () => {
+      expect(paceToSeconds("4:30")).toBe(270);
+    });
+
+    it("should handle pace without decimalsStr (when secondsStr doesn't include decimal)", () => {
+      const result = paceToSeconds("4:30", "min");
+      expect(result).toBe(270);
+    });
+
+    it("should handle paceToSeconds when decimalsStr is empty string", () => {
+      const result = paceToSeconds("4:30", "min");
+      expect(result).toBe(270);
+    });
+
+    it("should handle secondsToPace with sec unit default", () => {
+      expect(secondsToPace(270)).toBe("4:30");
+    });
   });
 
   describe("secondsToTime", () => {

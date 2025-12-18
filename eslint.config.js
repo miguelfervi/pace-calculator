@@ -27,6 +27,10 @@ export default [
         Event: "readonly",
         HTMLInputElement: "readonly",
         HTMLSelectElement: "readonly",
+        HTMLElement: "readonly",
+        window: "readonly",
+        document: "readonly",
+        localStorage: "readonly",
       },
     },
     plugins: {
@@ -57,9 +61,14 @@ export default [
         sourceType: "module",
       },
       globals: {
+        console: "readonly",
         Event: "readonly",
         HTMLInputElement: "readonly",
         HTMLSelectElement: "readonly",
+        HTMLElement: "readonly",
+        window: "readonly",
+        document: "readonly",
+        localStorage: "readonly",
       },
     },
     plugins: {
@@ -82,6 +91,35 @@ export default [
     },
   },
   {
-    ignores: ["node_modules/**", "dist/**", "coverage/**", "*.min.js", "*.min.css", ".git/**"],
+    ignores: [
+      "node_modules/**",
+      "dist/**",
+      "coverage/**",
+      "**/coverage/**",
+      "*.min.js",
+      "*.min.css",
+      ".git/**",
+    ],
+  },
+  {
+    files: ["**/__tests__/**", "**/*.test.ts", "**/*.test.js"],
+    languageOptions: {
+      globals: {
+        describe: "readonly",
+        it: "readonly",
+        expect: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        jest: "readonly",
+        HTMLElement: "readonly",
+        window: "readonly",
+        document: "readonly",
+        localStorage: "readonly",
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-unused-vars": "off",
+    },
   },
 ];

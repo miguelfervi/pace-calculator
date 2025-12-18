@@ -16,6 +16,14 @@
     </script>
   </head>
   <body>
+    <script>
+      (function() {
+        const theme = localStorage.getItem('ritmo-calculadora-theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -1,8 +1,56 @@
 <template>
   <div class="max-w-md mx-auto mt-0 pt-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
-      Calculadora de Ritmo
-    </h1>
+    <div
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-6"
+    >
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">
+        Calculadora de Ritmo
+      </h1>
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+          />
+        </svg>
+        <label
+          class="relative inline-flex items-center cursor-pointer"
+          :aria-label="theme === 'light' ? 'Cambiar a tema oscuro' : 'Cambiar a tema claro'"
+        >
+          <input
+            type="checkbox"
+            class="sr-only peer"
+            :checked="theme === 'dark'"
+            @change="toggleTheme"
+          />
+          <div
+            class="w-11 h-6 sm:w-14 sm:h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 sm:peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 sm:after:h-6 sm:after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+          ></div>
+        </label>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+          />
+        </svg>
+      </div>
+    </div>
 
     <div
       class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md"
@@ -85,7 +133,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { usePaceCalculator } from "../composables/usePaceCalculator";
+import { useTheme } from "../composables/useTheme";
 import InputWithSelector from "./InputWithSelector.vue";
+
+const { theme, toggleTheme } = useTheme();
 
 const {
   pace,
