@@ -71,6 +71,7 @@
         :is-visible="!!pace && pace.trim() !== ''"
         clear-title="Limpiar ritmo"
         :input-classes="paceClasses"
+        :is-calculated="calculatedField === 'pace'"
         @update:model-value="val => (pace = val as string)"
         @update:selected-unit="val => (paceUnit = val as 'min' | 'sec')"
         @clear="clearPace"
@@ -86,13 +87,14 @@
         :is-visible="distance !== null && distance !== undefined"
         clear-title="Limpiar distancia"
         :input-classes="distanceClasses"
+        :is-calculated="calculatedField === 'distance'"
         @update:model-value="val => (distance = val as number | null)"
         @update:selected-unit="val => (distanceUnit = val as 'km' | 'm')"
         @clear="clearDistance"
       />
 
       <InputWithSelector
-        label="Tiempo total"
+        label="Tiempo"
         :model-value="time"
         :selected-unit="timeUnit"
         :placeholder="timePlaceholder"
@@ -100,6 +102,7 @@
         :is-visible="!!time && time.trim() !== ''"
         clear-title="Limpiar tiempo"
         :input-classes="timeClasses"
+        :is-calculated="calculatedField === 'time'"
         @update:model-value="val => (time = val as string)"
         @update:selected-unit="val => (timeUnit = val as 'min' | 'sec')"
         @clear="clearTime"
@@ -121,10 +124,24 @@
       </div>
 
       <div
-        v-if="result"
-        class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md"
+        v-if="isResultError"
+        class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md flex items-start gap-2"
       >
-        <p class="text-blue-800 dark:text-blue-200 font-medium">{{ result }}</p>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <p class="text-red-800 dark:text-red-200 text-sm">{{ result }}</p>
       </div>
     </div>
   </div>
@@ -155,10 +172,10 @@ const {
 } = usePaceCalculator();
 
 const BASE_INPUT_CLASSES =
-  "w-full px-4 pr-10 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition";
+  "w-full px-4 pr-10 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition font-medium";
 const NORMAL_INPUT_CLASSES = "border-gray-300 dark:border-gray-600";
 const CALCULATED_INPUT_CLASSES =
-  "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-400";
+  "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-400 text-green-700 dark:text-green-300 shadow-green-100 dark:shadow-green-900/50 focus:ring-green-500 focus:border-green-600";
 
 const getInputClasses = (field: "pace" | "distance" | "time") => {
   return computed(() => [
@@ -174,6 +191,18 @@ const timeClasses = getInputClasses("time");
 const pacePlaceholder = computed(() => (paceUnit.value === "min" ? "4:30.5" : "270.5"));
 const distancePlaceholder = computed(() => (distanceUnit.value === "km" ? "0.4" : "400"));
 const timePlaceholder = computed(() => (timeUnit.value === "min" ? "50 o 50:00" : "3000"));
+
+const isResultError = computed(() => {
+  if (!result.value) return false;
+
+  const filledFields = [
+    pace.value && pace.value.trim() !== "",
+    distance.value !== null && distance.value !== undefined,
+    time.value && time.value.trim() !== "",
+  ].filter(Boolean).length;
+
+  return filledFields < 2 || (filledFields === 3 && calculatedField.value === null);
+});
 
 const paceOptions = [
   { value: "min", label: "min" },
