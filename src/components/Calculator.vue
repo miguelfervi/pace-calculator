@@ -108,21 +108,6 @@
         @clear="clearTime"
       />
 
-      <div class="flex gap-3 pt-2">
-        <button
-          class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          @click="calculate"
-        >
-          Calcular
-        </button>
-        <button
-          class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          @click="clear"
-        >
-          Limpiar
-        </button>
-      </div>
-
       <div
         v-if="isResultError"
         class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md flex items-start gap-2"
@@ -142,6 +127,21 @@
           />
         </svg>
         <p class="text-red-800 dark:text-red-200 text-sm">{{ result }}</p>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button
+          class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          @click="calculate"
+        >
+          Calcular
+        </button>
+        <button
+          class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          @click="clear"
+        >
+          Limpiar
+        </button>
       </div>
     </div>
   </div>
