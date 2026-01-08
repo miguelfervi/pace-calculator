@@ -17,7 +17,6 @@ const DISTANCE_SCHEMA = z.number().positive().min(0.001);
 const SECONDS_THRESHOLD = 60;
 const SECONDS_PER_MINUTE = 60;
 const MINUTES_PER_HOUR = 60;
-const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 const METERS_TO_KM = 1000;
 
 export function usePaceCalculator() {
