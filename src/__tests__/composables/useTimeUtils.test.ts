@@ -20,6 +20,25 @@ describe("useTimeUtils", () => {
       expect(timeToSeconds("0")).toBe(0);
     });
 
+    it("should convert hours format (decimal) to seconds", () => {
+      expect(timeToSeconds("1.5", "hr")).toBe(5400);
+      expect(timeToSeconds("2", "hr")).toBe(7200);
+      expect(timeToSeconds("0.5", "hr")).toBe(1800);
+      expect(timeToSeconds("1.25", "hr")).toBe(4500);
+    });
+
+    it("should convert hours format (H:MM) to seconds", () => {
+      expect(timeToSeconds("1:30", "hr")).toBe(5400);
+      expect(timeToSeconds("2:00", "hr")).toBe(7200);
+      expect(timeToSeconds("0:30", "hr")).toBe(1800);
+      expect(timeToSeconds("1:15", "hr")).toBe(4500);
+    });
+
+    it("should convert seconds format directly", () => {
+      expect(timeToSeconds("300", "sec")).toBe(300);
+      expect(timeToSeconds("270.5", "sec")).toBe(270.5);
+    });
+
     it("should throw error for invalid format", () => {
       expect(() => timeToSeconds("invalid")).toThrow("Invalid time format");
       expect(() => timeToSeconds("1:30:00")).toThrow("Invalid time format");
@@ -76,7 +95,7 @@ describe("useTimeUtils", () => {
   });
 
   describe("secondsToTime", () => {
-    it("should convert seconds to mm:ss format", () => {
+    it("should convert seconds to mm:ss format (min unit)", () => {
       expect(secondsToTime(330)).toBe("5:30");
       expect(secondsToTime(5400)).toBe("90:00");
       expect(secondsToTime(3661)).toBe("61:01");
@@ -89,8 +108,30 @@ describe("useTimeUtils", () => {
       expect(secondsToTime(9000)).toBe("150:00");
     });
 
-    it("should return 0:00 for negative values", () => {
+    it("should convert seconds to decimal format (sec unit)", () => {
+      expect(secondsToTime(330, "sec")).toBe("330.0");
+      expect(secondsToTime(270.5, "sec")).toBe("270.5");
+      expect(secondsToTime(90, "sec")).toBe("90.0");
+    });
+
+    it("should convert seconds to H:MM format (hr unit)", () => {
+      expect(secondsToTime(5400, "hr")).toBe("1:30");
+      expect(secondsToTime(7200, "hr")).toBe("2:00");
+      expect(secondsToTime(3600, "hr")).toBe("1:00");
+      expect(secondsToTime(4500, "hr")).toBe("1:15");
+      expect(secondsToTime(9000, "hr")).toBe("2:30");
+    });
+
+    it("should return 0:00 for negative values (min unit)", () => {
       expect(secondsToTime(-100)).toBe("0:00");
+    });
+
+    it("should return 0.0 for negative values (sec unit)", () => {
+      expect(secondsToTime(-100, "sec")).toBe("0.0");
+    });
+
+    it("should return 0:00 for negative values (hr unit)", () => {
+      expect(secondsToTime(-100, "hr")).toBe("0:00");
     });
   });
 

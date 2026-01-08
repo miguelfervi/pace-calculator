@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-md mx-auto mt-0 pt-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+  <div class="max-w-sm mx-auto mt-0 pt-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
     <div
       class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-6"
     >
@@ -104,7 +104,7 @@
         :input-classes="timeClasses"
         :is-calculated="calculatedField === 'time'"
         @update:model-value="val => (time = val as string)"
-        @update:selected-unit="val => (timeUnit = val as 'min' | 'sec')"
+        @update:selected-unit="val => (timeUnit = val as 'min' | 'sec' | 'hr')"
         @clear="clearTime"
       />
 
@@ -172,7 +172,7 @@ const {
 } = usePaceCalculator();
 
 const BASE_INPUT_CLASSES =
-  "w-full px-4 pr-10 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition font-medium";
+  "w-full px-4 pr-10 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition font-medium text-sm";
 const NORMAL_INPUT_CLASSES = "border-gray-300 dark:border-gray-600";
 const CALCULATED_INPUT_CLASSES =
   "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-400 text-green-700 dark:text-green-300 shadow-green-100 dark:shadow-green-900/50 focus:ring-green-500 focus:border-green-600";
@@ -190,7 +190,11 @@ const timeClasses = getInputClasses("time");
 
 const pacePlaceholder = computed(() => (paceUnit.value === "min" ? "4:30.5" : "270.5"));
 const distancePlaceholder = computed(() => (distanceUnit.value === "km" ? "0.4" : "400"));
-const timePlaceholder = computed(() => (timeUnit.value === "min" ? "50 o 50:00" : "3000"));
+const timePlaceholder = computed(() => {
+  if (timeUnit.value === "sec") return "3000";
+  if (timeUnit.value === "hr") return "1.5 o 1:30";
+  return "50 o 50:00";
+});
 
 const isResultError = computed(() => {
   if (!result.value) return false;
@@ -217,5 +221,6 @@ const distanceOptions = [
 const timeOptions = [
   { value: "min", label: "min" },
   { value: "sec", label: "seg" },
+  { value: "hr", label: "hora" },
 ];
 </script>

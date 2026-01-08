@@ -3,7 +3,7 @@
     <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
       {{ label }}
     </span>
-    <div class="flex gap-2">
+    <div class="flex gap-2 items-stretch">
       <div class="relative flex-1">
         <input
           :value="displayValue"
@@ -13,6 +13,7 @@
             inputClasses,
             inputType === 'number' ? 'no-spinner' : '',
             isCalculated ? 'pr-16' : '',
+            'text-sm',
           ]"
           @input="handleInput"
         />
@@ -86,7 +87,7 @@ const emit = defineEmits<{
 }>();
 
 const SELECT_CLASSES =
-  "px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition";
+  "w-24 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition font-medium text-sm";
 
 const displayValue = computed(() => {
   if (props.modelValue === null || props.modelValue === undefined) {

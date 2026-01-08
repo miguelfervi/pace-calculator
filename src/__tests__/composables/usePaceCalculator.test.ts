@@ -313,6 +313,26 @@ describe("usePaceCalculator", () => {
       expect(calculator.result.value).toBeTruthy();
     });
 
+    it("should validate time format in hours (decimal format)", () => {
+      calculator.distance.value = 10;
+      calculator.time.value = "1.5";
+      calculator.timeUnit.value = "hr";
+      calculator.paceUnit.value = "min";
+      calculator.calculate();
+
+      expect(calculator.result.value).toBeTruthy();
+    });
+
+    it("should validate time format in hours (H:MM format)", () => {
+      calculator.distance.value = 10;
+      calculator.time.value = "1:30";
+      calculator.timeUnit.value = "hr";
+      calculator.paceUnit.value = "min";
+      calculator.calculate();
+
+      expect(calculator.result.value).toBeTruthy();
+    });
+
     it("should validate distance", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
@@ -656,6 +676,499 @@ describe("usePaceCalculator", () => {
       calculator.distanceUnit.value = "km";
 
       expect(calculator.distance.value).toBe(distanceDuringCalculation);
+    });
+  });
+
+  describe("hours functionality", () => {
+    it("should automatically convert to hours when calculated time is >= 60 minutes", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 12;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      expect(calculator.timeUnit.value).toBe("hr");
+      expect(calculator.time.value).toBe("1:00");
+      expect(calculator.result.value).toContain("Tiempo:");
+      expect(calculator.result.value).toContain("h");
+      expect(calculator.calculatedField.value).toBe("time");
+    });
+
+    it("should automatically convert to hours for 90 minutes (1:30)", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 18;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      expect(calculator.timeUnit.value).toBe("hr");
+      expect(calculator.time.value).toBe("1:30");
+      expect(calculator.result.value).toContain("Tiempo:");
+      expect(calculator.result.value).toContain("h");
+    });
+
+    it("should calculate pace from distance and time in hours (decimal format)", () => {
+      calculator.distance.value = 10;
+      calculator.distanceUnit.value = "km";
+      calculator.time.value = "1.5";
+      calculator.timeUnit.value = "hr";
+      calculator.paceUnit.value = "min";
+      calculator.calculate();
+
+      expect(calculator.pace.value).toBeTruthy();
+      expect(calculator.result.value).toContain("Ritmo:");
+      expect(calculator.calculatedField.value).toBe("pace");
+    });
+
+    it("should calculate pace from distance and time in hours (H:MM format)", () => {
+      calculator.distance.value = 10;
+      calculator.distanceUnit.value = "km";
+      calculator.time.value = "1:30";
+      calculator.timeUnit.value = "hr";
+      calculator.paceUnit.value = "min";
+      calculator.calculate();
+
+      expect(calculator.pace.value).toBeTruthy();
+      expect(calculator.result.value).toContain("Ritmo:");
+      expect(calculator.calculatedField.value).toBe("pace");
+    });
+
+    it("should calculate distance from pace and time in hours", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.time.value = "2:00";
+      calculator.timeUnit.value = "hr";
+      calculator.calculate();
+
+      expect(calculator.distance.value).toBeTruthy();
+      expect(calculator.result.value).toContain("Distancia:");
+      expect(calculator.calculatedField.value).toBe("distance");
+    });
+
+    it("should convert time from min to hr when unit changes", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.time.value = "90:00";
+      calculator.timeUnit.value = "min";
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("1:30");
+    });
+
+    it("should convert time from hr to min when unit changes", async () => {
+      calculator.clear();
+      await nextTick();
+      // Set timeUnit first to avoid watcher triggering with wrong unit
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+      calculator.time.value = "1:30";
+      await nextTick();
+      calculator.timeUnit.value = "min";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("90:00");
+    });
+
+    it("should convert time from hr to sec when unit changes", async () => {
+      calculator.clear();
+      await nextTick();
+      // Set timeUnit first to avoid watcher triggering with wrong unit
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+      calculator.time.value = "1:00";
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("3600.0");
+    });
+
+    it("should convert time from sec to hr when unit changes", async () => {
+      calculator.clear();
+      await nextTick();
+      // Set timeUnit first to avoid watcher triggering with wrong unit
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "5400";
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("1:30");
+    });
+
+    it("should handle time conversion from hr when value is empty", () => {
+      calculator.time.value = "";
+      calculator.timeUnit.value = "hr";
+      const originalTime = calculator.time.value;
+
+      calculator.timeUnit.value = "min";
+
+      expect(calculator.time.value).toBe(originalTime);
+    });
+
+    it("should not convert to hours when time is exactly 59 minutes", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 11.8;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      // 11.8 km * 5:00 min/km = 59:00 minutes
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("59:00");
+    });
+
+    it("should convert to hours when time is exactly 60 minutes", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 12;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      // 12 km * 5:00 min/km = 60:00 minutes = 1:00 hour
+      expect(calculator.timeUnit.value).toBe("hr");
+      expect(calculator.time.value).toBe("1:00");
+    });
+
+    it("should automatically convert seconds to minutes when user inputs >= 60 seconds", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "90";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("1:30");
+    });
+
+    it("should automatically convert seconds to hours when user inputs >= 3600 seconds", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "5400";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("hr");
+      expect(calculator.time.value).toBe("1:30");
+    });
+
+    it("should not convert seconds to minutes when value is < 60 seconds", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "45";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("sec");
+      expect(calculator.time.value).toBe("45");
+    });
+
+    it("should not auto-convert when time is calculated (not manually entered)", () => {
+      calculator.pace.value = "4:30";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 1;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      expect(calculator.calculatedField.value).toBe("time");
+    });
+
+    it("should convert exactly 60 seconds to minutes", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "60";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("1:00");
+    });
+
+    it("should convert exactly 59 seconds but stay in seconds", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "59";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("sec");
+      expect(calculator.time.value).toBe("59");
+    });
+
+    it("should convert exactly 3600 seconds to hours", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "3600";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("hr");
+      expect(calculator.time.value).toBe("1:00");
+    });
+
+    it("should convert 3599 seconds to minutes (not hours)", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "3599";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("59:59");
+    });
+
+    it("should convert 61 seconds to minutes", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "61";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("1:01");
+    });
+
+    it("should not convert when time value is empty", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("sec");
+      expect(calculator.time.value).toBe("");
+    });
+
+    it("should not convert when time value is invalid (NaN)", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "abc";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("sec");
+      expect(calculator.time.value).toBe("abc");
+    });
+
+    it("should not auto-convert when calculatedField is 'time'", async () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 1;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+      await nextTick();
+
+      expect(calculator.calculatedField.value).toBe("time");
+      const originalTime = calculator.time.value;
+      const originalUnit = calculator.timeUnit.value;
+
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "100";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("sec");
+      expect(calculator.time.value).toBe("100");
+    });
+
+    it("should convert min to hr when manually changing unit for value >= 60 minutes", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.time.value = "90:00";
+      calculator.timeUnit.value = "min";
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("1:30");
+    });
+
+    it("should convert hr to min when manually changing unit", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+      calculator.time.value = "1:30";
+      await nextTick();
+      calculator.timeUnit.value = "min";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("90:00");
+    });
+
+    it("should convert hr to sec when manually changing unit", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+      calculator.time.value = "2:00";
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("7200.0");
+    });
+
+    it("should convert sec to hr when manually changing unit for value >= 3600 seconds", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.time.value = "7200";
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("2:00");
+    });
+
+    it("should calculate time and stay in minutes when result is < 60 minutes", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 10;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("50:00");
+      expect(calculator.result.value).toBe("Tiempo: 50:00");
+    });
+
+    it("should calculate time and convert to hours when result is exactly 60 minutes", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 12;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      expect(calculator.timeUnit.value).toBe("hr");
+      expect(calculator.time.value).toBe("1:00");
+      expect(calculator.result.value).toBe("Tiempo: 1:00 h");
+    });
+
+    it("should calculate time and stay in seconds when result is < 60 seconds", () => {
+      calculator.pace.value = "3:35";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 200;
+      calculator.distanceUnit.value = "m";
+      calculator.calculate();
+
+      expect(calculator.timeUnit.value).toBe("sec");
+      expect(calculator.time.value).toBe("43.0");
+      expect(calculator.result.value).toBe("Tiempo: 43.0 seg");
+    });
+
+    it("should format time result correctly with hours unit", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 24;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      expect(calculator.result.value).toBe("Tiempo: 2:00 h");
+    });
+
+    it("should format time result correctly with minutes unit (no label)", () => {
+      calculator.pace.value = "5:00";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 10;
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      expect(calculator.result.value).toBe("Tiempo: 50:00");
+    });
+
+    it("should format time result correctly with seconds unit", () => {
+      calculator.pace.value = "3:35";
+      calculator.paceUnit.value = "min";
+      calculator.distance.value = 200;
+      calculator.distanceUnit.value = "m";
+      calculator.calculate();
+
+      expect(calculator.result.value).toBe("Tiempo: 43.0 seg");
+    });
+
+    it("should handle conversion from hours decimal format (1.5) to minutes", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+      calculator.time.value = "1.5";
+      await nextTick();
+      calculator.timeUnit.value = "min";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("90:00");
+    });
+
+    it("should handle conversion from hours H:MM format (1:30) to seconds", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+      calculator.time.value = "1:30";
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("5400.0");
+    });
+
+    it("should handle conversion from minutes to hours for large values", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.time.value = "120:00";
+      calculator.timeUnit.value = "min";
+      await nextTick();
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+
+      expect(calculator.time.value).toBe("2:00");
+    });
+
+    it("should not convert when time value changes but unit is not sec", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.time.value = "90";
+      calculator.timeUnit.value = "min";
+      await nextTick();
+
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("90");
+    });
+
+    it("should handle multiple rapid conversions without errors", async () => {
+      calculator.clear();
+      await nextTick();
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "90";
+      await nextTick();
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("1:30");
+
+      calculator.timeUnit.value = "sec";
+      await nextTick();
+      calculator.time.value = "90";
+      await nextTick();
+      expect(calculator.timeUnit.value).toBe("min");
+      expect(calculator.time.value).toBe("1:30");
+
+      calculator.timeUnit.value = "hr";
+      await nextTick();
+      expect(calculator.time.value).toBe("0:01");
     });
   });
 });
