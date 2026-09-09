@@ -1,11 +1,5 @@
 import { z } from "zod";
-import {
-  KM_PER_MILE,
-  METERS_PER_KM,
-  METERS_PER_MILE,
-  METERS_PER_YARD,
-  SECONDS_THRESHOLD,
-} from "./constants";
+import { METERS_PER_KM, METERS_PER_MILE, METERS_PER_YARD, SECONDS_THRESHOLD } from "./constants";
 import {
   getAppropriateTimeUnit,
   paceToSeconds,
@@ -48,7 +42,6 @@ export type CalculatorInput = {
   distanceUnit: DistanceUnit;
   time: string;
   timeUnit: TimeUnit;
-  system: MeasurementSystem;
 };
 
 export type SolveResult =
@@ -85,23 +78,6 @@ export const parseDistance = (value: string): number | null => {
 
 export const systemForDistanceUnit = (unit: DistanceUnit): MeasurementSystem => {
   return unit === "yd" || unit === "mi" ? "imperial" : "metric";
-};
-
-export const paceBaseFor = (system: MeasurementSystem): PaceBase => {
-  return system === "imperial" ? "mi" : "km";
-};
-
-export const defaultDistanceUnit = (system: MeasurementSystem): DistanceUnit => {
-  return system === "imperial" ? "mi" : "m";
-};
-
-export const distanceUnitsFor = (): { value: DistanceUnit; label: string }[] => {
-  return [
-    { value: "m", label: "m" },
-    { value: "km", label: "km" },
-    { value: "yd", label: "yd" },
-    { value: "mi", label: "mi" },
-  ];
 };
 
 export const distanceToMeters = (value: number, unit: DistanceUnit): number => {
@@ -151,33 +127,10 @@ export const pickDistanceUnit = (meters: number, system: MeasurementSystem): Dis
   return meters < METERS_PER_KM ? "m" : "km";
 };
 
-export const mapDistanceUnit = (unit: DistanceUnit, system: MeasurementSystem): DistanceUnit => {
-  if (system === "imperial") {
-    if (unit === "m") return "yd";
-    if (unit === "km") return "mi";
-    return unit;
-  }
-  if (unit === "yd") return "m";
-  if (unit === "mi") return "km";
-  return unit;
-};
-
 export const convertPaceValue = (value: string, from: PaceUnit, to: PaceUnit): string => {
   if (!value || from === to) return value;
   const paceInSeconds = paceToSeconds(value, from);
   return to === "sec" ? paceInSeconds.toFixed(1) : secondsToPace(paceInSeconds, "min");
-};
-
-export const convertPaceBetweenBases = (
-  value: string,
-  unit: PaceUnit,
-  from: PaceBase,
-  to: PaceBase
-): string => {
-  if (!value || from === to) return value;
-  const seconds = paceToSeconds(value, unit);
-  const converted = from === "km" ? seconds * KM_PER_MILE : seconds / KM_PER_MILE;
-  return unit === "sec" ? converted.toFixed(1) : secondsToPace(converted, "min");
 };
 
 export const convertTimeValue = (value: string, from: TimeUnit, to: TimeUnit): string => {

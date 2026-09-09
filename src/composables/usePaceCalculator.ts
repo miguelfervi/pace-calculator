@@ -27,7 +27,6 @@ export function usePaceCalculator() {
       distanceUnit: distanceUnit.value,
       time: time.value,
       timeUnit: timeUnit.value,
-      system: "metric",
     });
 
     outcome.value = solved.outcome;

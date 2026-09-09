@@ -1,11 +1,12 @@
 <template>
-  <label class="block">
-    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+  <div class="block">
+    <label :for="inputId" class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
       {{ label }}
-    </span>
+    </label>
     <div class="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_5.5rem] items-stretch gap-2">
       <div class="relative min-w-0">
         <input
+          :id="inputId"
           :value="modelValue"
           type="text"
           inputmode="decimal"
@@ -36,16 +37,22 @@
         </div>
         <ClearButton :visible="isVisible" :title="clearTitle" @click="emit('clear')" />
       </div>
-      <select :value="selectedUnit" :class="SELECT_CLASSES" @change="handleUnitChange">
+      <select
+        :value="selectedUnit"
+        :aria-label="unitAriaLabel"
+        :class="SELECT_CLASSES"
+        @change="handleUnitChange"
+      >
         <option v-for="option in options" :key="option.value" :value="option.value">
           {{ option.label }}
         </option>
       </select>
     </div>
-  </label>
+  </div>
 </template>
 
 <script setup lang="ts" generic="T extends string">
+import { useId } from "vue";
 import ClearButton from "./ClearButton.vue";
 
 interface Option {
@@ -61,6 +68,7 @@ defineProps<{
   options: Option[];
   isVisible: boolean;
   clearTitle: string;
+  unitAriaLabel: string;
   inputClasses: string | string[];
   isCalculated?: boolean;
   calculatedTitle?: string;
@@ -71,6 +79,8 @@ const emit = defineEmits<{
   "update:selectedUnit": [value: T];
   clear: [];
 }>();
+
+const inputId = useId();
 
 const SELECT_CLASSES =
   "h-full w-full min-w-0 px-1.5 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition font-medium text-sm";

@@ -94,6 +94,7 @@ describe("Calculator.vue", () => {
     const inputs = wrapper.findAllComponents({ name: "InputWithSelector" });
     const paceInput = inputs[0];
     const distanceInput = inputs[1];
+    const timeInput = inputs[2];
 
     expect(paceInput.props("options")).toEqual([
       { value: "min", label: "min" },
@@ -106,6 +107,9 @@ describe("Calculator.vue", () => {
       { value: "mi", label: "milla" },
     ]);
     expect(distanceInput.props("selectedUnit")).toBe("m");
+    expect(paceInput.props("unitAriaLabel")).toBe("Unidad de ritmo");
+    expect(distanceInput.props("unitAriaLabel")).toBe("Unidad de distancia");
+    expect(timeInput.props("unitAriaLabel")).toBe("Unidad de tiempo");
   });
 
   it("should keep yards and miles available after switching to English", async () => {
@@ -165,6 +169,45 @@ describe("Calculator.vue", () => {
 
     expect(inputs[2].props("modelValue")).toBe("4:30");
     expect(inputs[2].props("isCalculated")).toBe(true);
+  });
+
+  it("should calculate time from pace and one mile", async () => {
+    const inputs = wrapper.findAllComponents({ name: "InputWithSelector" });
+    await inputs[0].vm.$emit("update:modelValue", "4:30");
+    await inputs[1].vm.$emit("update:selectedUnit", "mi");
+    await inputs[1].vm.$emit("update:modelValue", "1");
+
+    const calculateButton = wrapper.findAll("button").find(btn => btn.text() === "Calcular");
+    await calculateButton!.trigger("click");
+
+    expect(inputs[2].props("modelValue")).toBe("7:15");
+    expect(inputs[2].props("isCalculated")).toBe(true);
+    expect(wrapper.find("[aria-live]").text()).toContain("7:15");
+  });
+
+  it("should calculate time from pace and 400 yards", async () => {
+    const inputs = wrapper.findAllComponents({ name: "InputWithSelector" });
+    await inputs[0].vm.$emit("update:modelValue", "4:30");
+    await inputs[1].vm.$emit("update:selectedUnit", "yd");
+    await inputs[1].vm.$emit("update:modelValue", "400");
+
+    const calculateButton = wrapper.findAll("button").find(btn => btn.text() === "Calcular");
+    await calculateButton!.trigger("click");
+
+    expect(inputs[2].props("modelValue")).toBe("1:39");
+    expect(inputs[2].props("isCalculated")).toBe(true);
+  });
+
+  it("should show an error when calculating with a single value", async () => {
+    const inputs = wrapper.findAllComponents({ name: "InputWithSelector" });
+    await inputs[0].vm.$emit("update:modelValue", "4:30");
+
+    const calculateButton = wrapper.findAll("button").find(btn => btn.text() === "Calcular");
+    await calculateButton!.trigger("click");
+
+    const alert = wrapper.find('[role="alert"]');
+    expect(alert.exists()).toBe(true);
+    expect(alert.text()).toContain("Introduce exactamente dos valores");
   });
 
   it("should not show error message initially", () => {

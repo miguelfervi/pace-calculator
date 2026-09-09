@@ -10,7 +10,6 @@ describe("imperial distance units", () => {
       distanceUnit: "mi",
       time: "",
       timeUnit: "min",
-      system: "metric",
     });
 
     expect(result.ok).toBe(true);
@@ -26,7 +25,6 @@ describe("imperial distance units", () => {
       distanceUnit: "mi",
       time: "7:15",
       timeUnit: "min",
-      system: "metric",
     });
 
     expect(result.ok).toBe(true);
@@ -46,7 +44,6 @@ describe("imperial distance units", () => {
       distanceUnit: "km",
       time: "",
       timeUnit: "min",
-      system: "metric",
     });
 
     expect(result.ok).toBe(true);
@@ -66,7 +63,6 @@ describe("imperial distance units", () => {
       distanceUnit: "yd",
       time: "",
       timeUnit: "min",
-      system: "metric",
     });
 
     expect(result.ok).toBe(true);
@@ -82,7 +78,6 @@ describe("imperial distance units", () => {
       distanceUnit: "yd",
       time: "",
       timeUnit: "min",
-      system: "metric",
     });
 
     expect(result.ok).toBe(true);

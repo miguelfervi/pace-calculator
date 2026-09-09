@@ -20,6 +20,7 @@
         :options="paceOptions"
         :is-visible="!!pace && pace.trim() !== ''"
         :clear-title="t('clearPace')"
+        :unit-aria-label="t('paceUnitAria')"
         :input-classes="paceClasses"
         :is-calculated="calculatedField === 'pace'"
         :calculated-title="t('calculatedValue')"
@@ -36,6 +37,7 @@
         :options="distanceOptions"
         :is-visible="distance.trim() !== ''"
         :clear-title="t('clearDistance')"
+        :unit-aria-label="t('distanceUnitAria')"
         :input-classes="distanceClasses"
         :is-calculated="calculatedField === 'distance'"
         :calculated-title="t('calculatedValue')"
@@ -52,6 +54,7 @@
         :options="timeOptions"
         :is-visible="!!time && time.trim() !== ''"
         :clear-title="t('clearTime')"
+        :unit-aria-label="t('timeUnitAria')"
         :input-classes="timeClasses"
         :is-calculated="calculatedField === 'time'"
         :calculated-title="t('calculatedValue')"
@@ -88,12 +91,14 @@
 
       <div class="flex gap-3 pt-2">
         <button
+          type="button"
           class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           @click="calculate"
         >
           {{ t("calculate") }}
         </button>
         <button
+          type="button"
           class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           @click="clear"
         >

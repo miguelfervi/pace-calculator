@@ -34,6 +34,9 @@ export const messages = {
     distanceUnitKm: "km",
     distanceUnitYd: "yarda",
     distanceUnitMi: "milla",
+    paceUnitAria: "Unidad de ritmo",
+    distanceUnitAria: "Unidad de distancia",
+    timeUnitAria: "Unidad de tiempo",
   },
   en: {
     title: "Pace Calculator",
@@ -68,6 +71,9 @@ export const messages = {
     distanceUnitKm: "km",
     distanceUnitYd: "yard",
     distanceUnitMi: "mile",
+    paceUnitAria: "Pace unit",
+    distanceUnitAria: "Distance unit",
+    timeUnitAria: "Time unit",
   },
 } as const;
 
