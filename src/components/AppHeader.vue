@@ -3,7 +3,7 @@
     <h1 class="text-lg font-bold leading-tight text-balance text-gray-800 dark:text-white">
       {{ t("title") }}
     </h1>
-    <div class="mt-3 flex items-center justify-between gap-3">
+    <div class="mt-3 flex min-w-0 items-center justify-between gap-3">
       <div
         class="inline-flex shrink-0 overflow-hidden rounded-md border border-gray-300 dark:border-gray-600"
         role="group"

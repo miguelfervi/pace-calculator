@@ -1,14 +1,14 @@
 <template>
   <section
     v-if="entries.length"
-    class="rounded-lg bg-white px-4 py-3 shadow dark:bg-gray-800 sm:px-6"
+    class="min-w-0 overflow-hidden rounded-lg bg-white px-4 py-3 shadow dark:bg-gray-800 sm:px-6"
     :aria-labelledby="headingId"
   >
     <div class="mb-1 flex items-baseline justify-between gap-2">
       <h2 :id="headingId" class="text-xs font-semibold text-gray-600 dark:text-gray-300">
         {{ t("recent") }}
       </h2>
-      <p class="text-xs text-gray-400 dark:text-gray-500">{{ t("recentHint") }}</p>
+      <p class="min-w-0 truncate text-xs text-gray-400 dark:text-gray-500">{{ t("recentHint") }}</p>
     </div>
     <ul>
       <li v-for="item in items" :key="item.key">

@@ -1,6 +1,6 @@
 <template>
-  <div class="mx-auto w-full max-w-xs space-y-3">
-    <div class="rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
+  <div class="mx-auto w-full min-w-0 max-w-sm space-y-3">
+    <div class="min-w-0 rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
       <AppHeader />
 
       <div
@@ -151,7 +151,7 @@ const {
 } = usePaceCalculator();
 
 const BASE_INPUT_CLASSES =
-  "w-full px-4 pr-10 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition font-medium text-sm";
+  "w-full min-w-0 px-3 py-2 pr-10 text-base border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white outline-none transition font-medium sm:px-4 sm:text-sm";
 const NORMAL_INPUT_CLASSES = "border-gray-300 dark:border-gray-600";
 const CALCULATED_INPUT_CLASSES =
   "border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-400 text-green-700 dark:text-green-300 shadow-green-100 dark:shadow-green-900/50 focus:ring-green-500 focus:border-green-600";

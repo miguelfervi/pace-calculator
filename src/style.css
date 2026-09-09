@@ -1,3 +1,10 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+html,
+body,
+#app {
+  max-width: 100%;
+  overflow-x: clip;
+}

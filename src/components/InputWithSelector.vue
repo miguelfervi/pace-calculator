@@ -3,7 +3,9 @@
     <label :for="inputId" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
       {{ label }}
     </label>
-    <div class="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_5.5rem] items-stretch gap-2">
+    <div
+      class="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_minmax(4.25rem,5.5rem)] items-stretch gap-2"
+    >
       <div class="relative min-w-0">
         <input
           :id="inputId"
@@ -11,7 +13,7 @@
           type="text"
           :inputmode="inputMode ?? 'text'"
           :placeholder="placeholder"
-          :class="[inputClasses, isCalculated ? 'pr-16' : '', 'text-sm']"
+          :class="[inputClasses, isCalculated ? 'pr-16' : '']"
           @input="handleInput"
         />
         <div
@@ -84,7 +86,7 @@ const emit = defineEmits<{
 const inputId = useId();
 
 const SELECT_CLASSES =
-  "h-full w-full min-w-0 px-1.5 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition font-medium text-sm";
+  "h-full w-full min-w-0 max-w-full px-1.5 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition font-medium text-base sm:text-sm";
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
