@@ -10,26 +10,13 @@ const isLocale = (value: string | null): value is Locale => {
   return value === "es" || value === "en";
 };
 
-const detectBrowserLocale = (): Locale => {
-  if (typeof window === "undefined") {
-    return DEFAULT_LOCALE;
-  }
-
-  const language = window.navigator.language?.toLowerCase() ?? "";
-  return language.startsWith("en") ? "en" : DEFAULT_LOCALE;
-};
-
 const getInitialLocale = (): Locale => {
   if (typeof window === "undefined") {
     return DEFAULT_LOCALE;
   }
 
   const savedLocale = localStorage.getItem(STORAGE_KEY);
-  if (isLocale(savedLocale)) {
-    return savedLocale;
-  }
-
-  return detectBrowserLocale();
+  return isLocale(savedLocale) ? savedLocale : DEFAULT_LOCALE;
 };
 
 const applyLocale = (nextLocale: Locale) => {

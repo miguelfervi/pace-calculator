@@ -29,4 +29,13 @@ describe("useI18n", () => {
     expect(document.documentElement.lang).toBe("en");
     expect(document.title).toBe("Pace Calculator");
   });
+
+  it("should default to Spanish when no locale is saved", () => {
+    localStorage.clear();
+    const { t, setLocale } = useI18n();
+    setLocale("es");
+
+    expect(t("title")).toBe("Calculadora de Ritmo");
+    expect(t("calculate")).toBe("Calcular");
+  });
 });
