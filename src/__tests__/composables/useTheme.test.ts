@@ -1,18 +1,18 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { useTheme } from "../../composables/useTheme";
 
 describe("useTheme", () => {
   let mockLocalStorage: { [key: string]: string };
-  let mockAddClass: jest.Mock;
-  let mockRemoveClass: jest.Mock;
-  let mockContainsClass: jest.Mock;
+  let mockAddClass: ReturnType<typeof vi.fn>;
+  let mockRemoveClass: ReturnType<typeof vi.fn>;
+  let mockContainsClass: ReturnType<typeof vi.fn>;
   let mockHtmlElement: HTMLElement;
 
   beforeEach(() => {
     mockLocalStorage = {};
-    mockAddClass = jest.fn();
-    mockRemoveClass = jest.fn();
-    mockContainsClass = jest.fn(() => false);
+    mockAddClass = vi.fn();
+    mockRemoveClass = vi.fn();
+    mockContainsClass = vi.fn(() => false);
 
     mockHtmlElement = {
       classList: {
@@ -24,14 +24,14 @@ describe("useTheme", () => {
 
     Object.defineProperty(window, "localStorage", {
       value: {
-        getItem: jest.fn((key: string) => mockLocalStorage[key] || null),
-        setItem: jest.fn((key: string, value: string) => {
+        getItem: vi.fn((key: string) => mockLocalStorage[key] || null),
+        setItem: vi.fn((key: string, value: string) => {
           mockLocalStorage[key] = value;
         }),
-        removeItem: jest.fn((key: string) => {
+        removeItem: vi.fn((key: string) => {
           delete mockLocalStorage[key];
         }),
-        clear: jest.fn(() => {
+        clear: vi.fn(() => {
           mockLocalStorage = {};
         }),
       },
@@ -47,7 +47,7 @@ describe("useTheme", () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockLocalStorage = {};
   });
 

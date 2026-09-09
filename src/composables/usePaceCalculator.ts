@@ -1,338 +1,109 @@
-import { ref, watch, nextTick } from "vue";
-import { z } from "zod";
-import { useTimeUtils } from "./useTimeUtils";
-import { useI18n } from "./useI18n";
-
-type DistanceUnit = "km" | "m";
-type PaceUnit = "min" | "sec";
-type TimeUnit = "min" | "sec" | "hr";
-type CalculatedField = "pace" | "distance" | "time" | null;
-
-const TIME_MIN_SCHEMA = z.string().regex(/^(\d+)$|^(\d{1,2}):([0-5]?\d)$/);
-const TIME_SEC_SCHEMA = z.string().regex(/^\d+(\.\d+)?$/);
-const TIME_HR_SCHEMA = z.string().regex(/^(\d+(\.\d+)?)$|^(\d+):([0-5]?\d)$/);
-const PACE_MIN_SCHEMA = z.string().regex(/^(\d{1,2}):([0-5]?\d)(\.\d)?$/);
-const PACE_SEC_SCHEMA = z.string().regex(/^\d+(\.\d+)?$/);
-const DISTANCE_SCHEMA = z.number().positive().min(0.001);
-
-const SECONDS_THRESHOLD = 60;
-const SECONDS_PER_MINUTE = 60;
-const MINUTES_PER_HOUR = 60;
-const METERS_TO_KM = 1000;
+import { ref } from "vue";
+import {
+  convertDistanceValue,
+  convertPaceValue,
+  convertTimeValue,
+  normalizeSecondsInput,
+  solveMissingField,
+} from "../domain/paceCalculator";
+import { EMPTY_OUTCOME, type CalculatedField, type CalculatorOutcome } from "../domain/types";
+import type { DistanceUnit, PaceUnit, TimeUnit } from "../domain/types";
 
 export function usePaceCalculator() {
-  const { timeToSeconds, paceToSeconds, secondsToTime, secondsToPace } = useTimeUtils();
-  const { t, locale } = useI18n();
-
-  const pace = ref<string>("");
+  const pace = ref("");
   const paceUnit = ref<PaceUnit>("min");
-  const distance = ref<number | null>(null);
+  const distance = ref("");
   const distanceUnit = ref<DistanceUnit>("m");
-  const time = ref<string>("");
+  const time = ref("");
   const timeUnit = ref<TimeUnit>("min");
-  const result = ref<string>("");
-  const calculatedField = ref<CalculatedField>(null);
-  const isCalculating = ref(false);
-
-  const distanceToKm = (value: number, unit: DistanceUnit): number => {
-    return unit === "m" ? value / METERS_TO_KM : value;
-  };
-
-  const formatDistance = (valueInKm: number, unit: DistanceUnit): string => {
-    const value = unit === "m" ? Math.round(valueInKm * METERS_TO_KM) : valueInKm.toFixed(2);
-    return `${value} ${unit}`;
-  };
-
-  const TIME_SCHEMAS = {
-    min: TIME_MIN_SCHEMA,
-    sec: TIME_SEC_SCHEMA,
-    hr: TIME_HR_SCHEMA,
-  } as const;
-
-  const PACE_SCHEMAS = {
-    min: PACE_MIN_SCHEMA,
-    sec: PACE_SEC_SCHEMA,
-  } as const;
-
-  const isValidTime = (value: string, unit: TimeUnit): boolean => {
-    return value ? TIME_SCHEMAS[unit].safeParse(value).success : false;
-  };
-
-  const isValidPace = (value: string, unit: PaceUnit): boolean => {
-    return value ? PACE_SCHEMAS[unit].safeParse(value).success : false;
-  };
-
-  const isValidDistance = (value: number | null): boolean => {
-    return value !== null ? DISTANCE_SCHEMA.safeParse(value).success : false;
-  };
-
-  const getAppropriateTimeUnit = (totalSeconds: number): TimeUnit => {
-    if (totalSeconds < SECONDS_THRESHOLD) {
-      return "sec";
-    }
-    const totalMinutes = totalSeconds / SECONDS_PER_MINUTE;
-    if (totalMinutes >= MINUTES_PER_HOUR) {
-      return "hr";
-    }
-    return "min";
-  };
-
-  const formatTimeResult = (totalSeconds: number): string => {
-    const timeFormatted = secondsToTime(totalSeconds, timeUnit.value);
-    const unitLabel =
-      timeUnit.value === "sec"
-        ? t("timeUnitSec")
-        : timeUnit.value === "hr"
-          ? t("timeUnitHour")
-          : "";
-    return `${t("resultTime")}: ${timeFormatted} ${unitLabel}`.trim();
-  };
-
-  const calculateTime = (paceValue: string, distanceInKm: number, unit: PaceUnit): void => {
-    isCalculating.value = true;
-    const totalSeconds = paceToSeconds(paceValue, unit) * distanceInKm;
-
-    const appropriateUnit = getAppropriateTimeUnit(totalSeconds);
-    timeUnit.value = appropriateUnit;
-    time.value = secondsToTime(totalSeconds, appropriateUnit);
-
-    result.value = formatTimeResult(totalSeconds);
-    calculatedField.value = "time";
-
-    nextTick(() => {
-      isCalculating.value = false;
-    });
-  };
-
-  const calculatePace = (
-    timeValue: string,
-    distanceInKm: number,
-    timeUnitValue: TimeUnit
-  ): void => {
-    isCalculating.value = true;
-    const totalSeconds = timeToSeconds(timeValue, timeUnitValue);
-    const paceInSeconds = totalSeconds / distanceInKm;
-
-    if (paceInSeconds < SECONDS_THRESHOLD && paceInSeconds > 0) {
-      paceUnit.value = "sec";
-      pace.value = paceInSeconds.toFixed(1);
-    } else {
-      paceUnit.value = "min";
-      pace.value = secondsToPace(paceInSeconds, "min");
-    }
-
-    const unitLabel = paceUnit.value === "sec" ? t("paceUnitSec") : t("paceUnitMin");
-    result.value = `${t("resultPace")}: ${pace.value} ${unitLabel}`;
-    calculatedField.value = "pace";
-
-    nextTick(() => {
-      isCalculating.value = false;
-    });
-  };
-
-  const calculateDistance = (
-    paceValue: string,
-    timeValue: string,
-    timeUnitValue: TimeUnit,
-    unit: PaceUnit
-  ): void => {
-    isCalculating.value = true;
-    const totalSeconds = timeToSeconds(timeValue, timeUnitValue);
-    const calculatedDistanceInKm = totalSeconds / paceToSeconds(paceValue, unit);
-
-    if (calculatedDistanceInKm < 1) {
-      distanceUnit.value = "m";
-      distance.value = Math.round(calculatedDistanceInKm * METERS_TO_KM);
-    } else {
-      distanceUnit.value = "km";
-      distance.value = calculatedDistanceInKm;
-    }
-
-    result.value = `${t("resultDistance")}: ${formatDistance(calculatedDistanceInKm, distanceUnit.value)}`;
-    calculatedField.value = "distance";
-
-    nextTick(() => {
-      isCalculating.value = false;
-    });
-  };
+  const outcome = ref<CalculatorOutcome>(EMPTY_OUTCOME);
+  const calculatedField = ref<CalculatedField | null>(null);
 
   const calculate = (): void => {
-    calculatedField.value = null;
-    result.value = "";
+    const solved = solveMissingField({
+      pace: pace.value,
+      paceUnit: paceUnit.value,
+      distance: distance.value,
+      distanceUnit: distanceUnit.value,
+      time: time.value,
+      timeUnit: timeUnit.value,
+      system: "metric",
+    });
 
-    const validations = {
-      pace: isValidPace(pace.value, paceUnit.value),
-      distance: isValidDistance(distance.value),
-      time: isValidTime(time.value, timeUnit.value),
-    };
+    outcome.value = solved.outcome;
 
-    const filledCount = Object.values(validations).filter(Boolean).length;
-
-    if (filledCount !== 2) {
-      result.value = t("errorTwoValues");
+    if (!solved.ok) {
+      calculatedField.value = null;
       return;
     }
 
-    try {
-      const distanceInKm = validations.distance
-        ? distanceToKm(distance.value!, distanceUnit.value)
-        : null;
+    pace.value = solved.pace;
+    paceUnit.value = solved.paceUnit;
+    distance.value = solved.distance;
+    distanceUnit.value = solved.distanceUnit;
+    time.value = solved.time;
+    timeUnit.value = solved.timeUnit;
+    calculatedField.value = solved.missing;
+  };
 
-      if (validations.pace && validations.distance) {
-        calculateTime(pace.value, distanceInKm!, paceUnit.value);
-      } else if (validations.distance && validations.time) {
-        calculatePace(time.value, distanceInKm!, timeUnit.value);
-      } else if (validations.pace && validations.time) {
-        calculateDistance(pace.value, time.value, timeUnit.value, paceUnit.value);
-      }
-    } catch {
-      result.value = t("errorCalculation");
-    }
+  const resetOutcome = () => {
+    outcome.value = EMPTY_OUTCOME;
+    calculatedField.value = null;
   };
 
   const clear = (): void => {
     pace.value = "";
     paceUnit.value = "min";
-    distance.value = null;
+    distance.value = "";
     distanceUnit.value = "m";
     time.value = "";
     timeUnit.value = "min";
-    result.value = "";
-    calculatedField.value = null;
-  };
-
-  const FIELD_CLEARERS: Record<Exclude<CalculatedField, null>, () => void> = {
-    pace: () => {
-      pace.value = "";
-    },
-    distance: () => {
-      distance.value = null;
-    },
-    time: () => {
-      time.value = "";
-    },
+    resetOutcome();
   };
 
   const clearField = (field: CalculatedField): void => {
-    if (field !== null) {
-      FIELD_CLEARERS[field]();
-    }
+    if (field === "pace") pace.value = "";
+    if (field === "distance") distance.value = "";
+    if (field === "time") time.value = "";
 
     if (calculatedField.value === field) {
-      calculatedField.value = null;
-      result.value = "";
+      resetOutcome();
     }
   };
 
-  const clearPace = (): void => clearField("pace");
-  const clearDistance = (): void => clearField("distance");
-  const clearTime = (): void => clearField("time");
-
-  const convertPaceToNewUnit = (oldUnit: PaceUnit, newUnit: PaceUnit): void => {
-    if (!pace.value || oldUnit === newUnit) return;
-
+  const changePaceUnit = (unit: PaceUnit): void => {
     try {
-      const paceInSeconds = paceToSeconds(pace.value, oldUnit);
-      if (newUnit === "sec") {
-        pace.value = paceInSeconds.toFixed(1);
-      } else {
-        pace.value = secondsToPace(paceInSeconds, "min");
-      }
+      pace.value = convertPaceValue(pace.value, paceUnit.value, unit);
     } catch {
       pace.value = "";
     }
+    paceUnit.value = unit;
   };
 
-  const convertTimeToNewUnit = (oldUnit: TimeUnit, newUnit: TimeUnit): void => {
-    if (!time.value || oldUnit === newUnit) return;
-
+  const changeTimeUnit = (unit: TimeUnit): void => {
     try {
-      isProgrammaticTimeChange = true;
-      const totalSeconds = timeToSeconds(time.value, oldUnit);
-      time.value = secondsToTime(totalSeconds, newUnit);
-      nextTick(() => {
-        isProgrammaticTimeChange = false;
-      });
+      time.value = convertTimeValue(time.value, timeUnit.value, unit);
     } catch {
       time.value = "";
-      isProgrammaticTimeChange = false;
     }
+    timeUnit.value = unit;
   };
 
-  const convertDistanceToNewUnit = (oldUnit: DistanceUnit, newUnit: DistanceUnit): void => {
-    if (distance.value === null || oldUnit === newUnit) return;
-
-    try {
-      const distanceInKm = distanceToKm(distance.value, oldUnit);
-      if (newUnit === "m") {
-        distance.value = Math.round(distanceInKm * METERS_TO_KM);
-      } else {
-        distance.value = Number(distanceInKm.toFixed(2));
-      }
-    } catch {
-      distance.value = null;
-    }
+  const changeDistanceUnit = (unit: DistanceUnit): void => {
+    distance.value = convertDistanceValue(distance.value, distanceUnit.value, unit);
+    distanceUnit.value = unit;
   };
 
-  watch(paceUnit, (newUnit, oldUnit) => {
-    if (oldUnit && pace.value && !isCalculating.value) {
-      convertPaceToNewUnit(oldUnit, newUnit);
+  const setTime = (value: string): void => {
+    if (calculatedField.value === "time") {
+      time.value = value;
+      return;
     }
-  });
 
-  let isProgrammaticTimeChange = false;
-
-  watch(timeUnit, (newUnit, oldUnit) => {
-    if (oldUnit && time.value && !isCalculating.value && !isProgrammaticTimeChange) {
-      convertTimeToNewUnit(oldUnit, newUnit);
-    }
-  });
-
-  watch(
-    () => time.value,
-    (newTime, oldTime) => {
-      if (
-        isCalculating.value ||
-        isProgrammaticTimeChange ||
-        timeUnit.value !== "sec" ||
-        !newTime ||
-        newTime.trim() === "" ||
-        newTime === oldTime ||
-        calculatedField.value === "time"
-      ) {
-        return;
-      }
-
-      try {
-        const seconds = Number(newTime);
-        if (!isNaN(seconds) && seconds >= SECONDS_THRESHOLD) {
-          const appropriateUnit = getAppropriateTimeUnit(seconds);
-          if (appropriateUnit !== "sec") {
-            isProgrammaticTimeChange = true;
-            timeUnit.value = appropriateUnit;
-            time.value = secondsToTime(seconds, appropriateUnit);
-            nextTick(() => {
-              isProgrammaticTimeChange = false;
-            });
-          }
-        }
-      } catch {
-        // Ignore
-      }
-    }
-  );
-
-  watch(distanceUnit, (newUnit, oldUnit) => {
-    if (oldUnit && distance.value !== null && !isCalculating.value) {
-      convertDistanceToNewUnit(oldUnit, newUnit);
-    }
-  });
-
-  watch(locale, (newLocale, oldLocale) => {
-    if (oldLocale && newLocale !== oldLocale && result.value) {
-      calculate();
-    }
-  });
+    const normalized = normalizeSecondsInput(value, timeUnit.value);
+    time.value = normalized.value;
+    timeUnit.value = normalized.unit;
+  };
 
   return {
     pace,
@@ -341,12 +112,16 @@ export function usePaceCalculator() {
     distanceUnit,
     time,
     timeUnit,
-    result,
+    outcome,
     calculatedField,
     calculate,
     clear,
-    clearPace,
-    clearDistance,
-    clearTime,
+    clearPace: () => clearField("pace"),
+    clearDistance: () => clearField("distance"),
+    clearTime: () => clearField("time"),
+    changePaceUnit,
+    changeTimeUnit,
+    changeDistanceUnit,
+    setTime,
   };
 }
