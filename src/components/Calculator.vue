@@ -4,7 +4,7 @@
       <AppHeader />
 
       <div
-        class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md"
+        class="mb-4 rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20"
       >
         <p class="text-sm text-amber-800 dark:text-amber-200">
           <span class="font-semibold">{{ t("infoLabel") }}</span>
@@ -23,6 +23,7 @@
           :clear-title="t('clearPace')"
           :unit-aria-label="t('paceUnitAria')"
           :input-classes="paceClasses"
+          :input-mode="paceUnit === 'sec' ? 'decimal' : 'text'"
           :is-calculated="calculatedField === 'pace'"
           :calculated-title="t('calculatedValue')"
           @update:model-value="val => (pace = val)"
@@ -40,6 +41,7 @@
           :clear-title="t('clearDistance')"
           :unit-aria-label="t('distanceUnitAria')"
           :input-classes="distanceClasses"
+          input-mode="decimal"
           :is-calculated="calculatedField === 'distance'"
           :calculated-title="t('calculatedValue')"
           @update:model-value="val => (distance = val)"
@@ -57,6 +59,7 @@
           :clear-title="t('clearTime')"
           :unit-aria-label="t('timeUnitAria')"
           :input-classes="timeClasses"
+          :input-mode="timeUnit === 'sec' ? 'decimal' : 'text'"
           :is-calculated="calculatedField === 'time'"
           :calculated-title="t('calculatedValue')"
           @update:model-value="setTime"

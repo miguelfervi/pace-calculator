@@ -1,6 +1,6 @@
 <template>
   <div class="block">
-    <label :for="inputId" class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+    <label :for="inputId" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
       {{ label }}
     </label>
     <div class="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_5.5rem] items-stretch gap-2">
@@ -9,7 +9,7 @@
           :id="inputId"
           :value="modelValue"
           type="text"
-          inputmode="decimal"
+          :inputmode="inputMode ?? 'text'"
           :placeholder="placeholder"
           :class="[inputClasses, isCalculated ? 'pr-16' : '', 'text-sm']"
           @input="handleInput"
@@ -70,6 +70,7 @@ defineProps<{
   clearTitle: string;
   unitAriaLabel: string;
   inputClasses: string | string[];
+  inputMode?: "text" | "decimal";
   isCalculated?: boolean;
   calculatedTitle?: string;
 }>();

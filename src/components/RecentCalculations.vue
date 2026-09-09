@@ -14,15 +14,15 @@
       <li v-for="item in items" :key="item.key">
         <button
           type="button"
-          class="flex min-h-11 w-full items-center gap-1 py-2.5 text-left text-xs transition-colors hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-blue-300"
+          class="flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 py-2.5 text-left text-xs transition-colors hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-blue-300"
           :aria-label="`${t('useRecentCalculation')}: ${item.label}`"
           @click="emit('select', item.entry)"
         >
           <span class="min-w-0 truncate text-gray-500 dark:text-gray-400">{{ item.inputs }}</span>
-          <span class="shrink-0 text-gray-300 dark:text-gray-600" aria-hidden="true">→</span>
-          <span class="shrink-0 font-medium text-gray-800 dark:text-gray-100">{{
-            item.result
-          }}</span>
+          <span class="flex shrink-0 items-center gap-1">
+            <span class="text-gray-300 dark:text-gray-600" aria-hidden="true">→</span>
+            <span class="font-medium text-gray-800 dark:text-gray-100">{{ item.result }}</span>
+          </span>
         </button>
       </li>
     </ul>

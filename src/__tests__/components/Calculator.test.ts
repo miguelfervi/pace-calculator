@@ -41,6 +41,9 @@ describe("Calculator.vue", () => {
     expect(paceInput.props("unitAriaLabel")).toBe("Unidad de ritmo");
     expect(distanceInput.props("unitAriaLabel")).toBe("Unidad de distancia");
     expect(timeInput.props("unitAriaLabel")).toBe("Unidad de tiempo");
+    expect(paceInput.props("inputMode")).toBe("text");
+    expect(distanceInput.props("inputMode")).toBe("decimal");
+    expect(timeInput.props("inputMode")).toBe("text");
   });
 
   it("switches to English and keeps yards and miles", async () => {
