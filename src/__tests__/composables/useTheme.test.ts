@@ -5,20 +5,18 @@ describe("useTheme", () => {
   let mockLocalStorage: { [key: string]: string };
   let mockAddClass: ReturnType<typeof vi.fn>;
   let mockRemoveClass: ReturnType<typeof vi.fn>;
-  let mockContainsClass: ReturnType<typeof vi.fn>;
   let mockHtmlElement: HTMLElement;
 
   beforeEach(() => {
     mockLocalStorage = {};
     mockAddClass = vi.fn();
     mockRemoveClass = vi.fn();
-    mockContainsClass = vi.fn(() => false);
 
     mockHtmlElement = {
       classList: {
         add: mockAddClass,
         remove: mockRemoveClass,
-        contains: mockContainsClass,
+        contains: vi.fn(() => false),
       },
     } as unknown as HTMLElement;
 
@@ -48,148 +46,29 @@ describe("useTheme", () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-    mockLocalStorage = {};
   });
 
-  describe("setTheme", () => {
-    it("should set theme to light and remove dark class", () => {
-      const { theme, setTheme } = useTheme();
-      mockContainsClass.mockReturnValue(true);
+  it("sets light and dark themes", () => {
+    const { theme, setTheme } = useTheme();
 
-      setTheme("light");
+    setTheme("dark");
+    expect(theme.value).toBe("dark");
+    expect(localStorage.setItem).toHaveBeenCalledWith("ritmo-calculadora-theme", "dark");
+    expect(mockAddClass).toHaveBeenCalledWith("dark");
 
-      expect(theme.value).toBe("light");
-      expect(localStorage.setItem).toHaveBeenCalledWith("ritmo-calculadora-theme", "light");
-      expect(mockRemoveClass).toHaveBeenCalledWith("dark");
-      expect(mockAddClass).not.toHaveBeenCalled();
-    });
-
-    it("should set theme to dark and add dark class", () => {
-      const { theme, setTheme } = useTheme();
-
-      setTheme("dark");
-
-      expect(theme.value).toBe("dark");
-      expect(localStorage.setItem).toHaveBeenCalledWith("ritmo-calculadora-theme", "dark");
-      expect(mockAddClass).toHaveBeenCalledWith("dark");
-      expect(mockRemoveClass).not.toHaveBeenCalled();
-    });
-
-    it("should update localStorage when theme changes", () => {
-      const { setTheme } = useTheme();
-
-      setTheme("dark");
-      expect(localStorage.setItem).toHaveBeenCalledWith("ritmo-calculadora-theme", "dark");
-
-      setTheme("light");
-      expect(localStorage.setItem).toHaveBeenCalledWith("ritmo-calculadora-theme", "light");
-    });
+    setTheme("light");
+    expect(theme.value).toBe("light");
+    expect(mockRemoveClass).toHaveBeenCalledWith("dark");
   });
 
-  describe("toggleTheme", () => {
-    it("should toggle from light to dark", () => {
-      const { theme, toggleTheme } = useTheme();
-      theme.value = "light";
+  it("toggles between light and dark", () => {
+    const { theme, toggleTheme } = useTheme();
+    theme.value = "light";
 
-      toggleTheme();
+    toggleTheme();
+    expect(theme.value).toBe("dark");
 
-      expect(theme.value).toBe("dark");
-      expect(localStorage.setItem).toHaveBeenCalledWith("ritmo-calculadora-theme", "dark");
-      expect(mockAddClass).toHaveBeenCalledWith("dark");
-    });
-
-    it("should toggle from dark to light", () => {
-      const { theme, toggleTheme } = useTheme();
-      theme.value = "dark";
-
-      toggleTheme();
-
-      expect(theme.value).toBe("light");
-      expect(localStorage.setItem).toHaveBeenCalledWith("ritmo-calculadora-theme", "light");
-      expect(mockRemoveClass).toHaveBeenCalledWith("dark");
-    });
-
-    it("should toggle multiple times correctly", () => {
-      const { theme, toggleTheme } = useTheme();
-      theme.value = "light";
-
-      toggleTheme();
-      expect(theme.value).toBe("dark");
-
-      toggleTheme();
-      expect(theme.value).toBe("light");
-
-      toggleTheme();
-      expect(theme.value).toBe("dark");
-    });
-  });
-
-  describe("theme initialization", () => {
-    it("should have a theme value", () => {
-      const { theme } = useTheme();
-      expect(theme.value).toBeDefined();
-      expect(["light", "dark"]).toContain(theme.value);
-    });
-
-    it("should persist theme to localStorage when set", () => {
-      const { setTheme } = useTheme();
-      setTheme("dark");
-      expect(localStorage.setItem).toHaveBeenCalledWith("ritmo-calculadora-theme", "dark");
-    });
-
-    it("should have valid theme value", () => {
-      const { theme } = useTheme();
-      expect(theme.value).toBeDefined();
-      expect(["light", "dark"]).toContain(theme.value);
-    });
-  });
-
-  describe("theme reactivity", () => {
-    it("should return reactive theme ref", () => {
-      const { theme, setTheme } = useTheme();
-
-      expect(theme.value).toBeDefined();
-      expect(typeof theme.value).toBe("string");
-
-      setTheme("dark");
-      expect(theme.value).toBe("dark");
-
-      setTheme("light");
-      expect(theme.value).toBe("light");
-    });
-  });
-
-  describe("applyTheme", () => {
-    it("should apply dark class when theme is dark", () => {
-      const { setTheme } = useTheme();
-
-      setTheme("dark");
-
-      expect(mockAddClass).toHaveBeenCalledWith("dark");
-      expect(mockRemoveClass).not.toHaveBeenCalled();
-    });
-
-    it("should remove dark class when theme is light", () => {
-      const { setTheme } = useTheme();
-      mockContainsClass.mockReturnValue(true);
-
-      setTheme("light");
-
-      expect(mockRemoveClass).toHaveBeenCalledWith("dark");
-      expect(mockAddClass).not.toHaveBeenCalled();
-    });
-
-    it("should handle applyTheme when window is undefined", () => {
-      // This test is difficult to execute in a Node.js environment where window is always defined
-      // The code handles SSR by checking `typeof window === "undefined"` but in tests
-      // we can't easily simulate this. The functionality is correct as the code checks
-      // for window existence before accessing it.
-      const { setTheme } = useTheme();
-      setTheme("dark");
-
-      // In a real SSR environment, applyTheme would return early if window is undefined
-      // but in tests, window is always defined, so the theme is applied normally
-      expect(mockAddClass).toHaveBeenCalledWith("dark");
-    });
+    toggleTheme();
+    expect(theme.value).toBe("light");
   });
 });

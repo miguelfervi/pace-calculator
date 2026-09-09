@@ -12,7 +12,6 @@ import type {
   CalculatorOutcome,
   DistanceUnit,
   MeasurementSystem,
-  PaceBase,
   PaceUnit,
   TimeUnit,
 } from "./types";
@@ -189,7 +188,6 @@ export const solveMissingField = (input: CalculatorInput): SolveResult => {
     return { ok: false, outcome: { kind: "error", code: "needTwoValues" } };
   }
 
-  const paceBase: PaceBase = "km";
   const baseMeters = METERS_PER_KM;
 
   try {
@@ -230,10 +228,9 @@ export const solveMissingField = (input: CalculatorInput): SolveResult => {
         timeUnit: input.timeUnit,
         outcome: {
           kind: "pace",
-          secondsPerBase: paceInSeconds,
+          secondsPerKm: paceInSeconds,
           formatted,
           unit,
-          base: paceBase,
         },
       };
     }

@@ -5,23 +5,25 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Calcula ritmo, distancia o tiempo a partir de dos valores. Compatible con metros, kilómetros, yardas y millas."
+    />
+    <meta property="og:title" content="Calculadora de Ritmo" />
+    <meta
+      property="og:description"
+      content="Calcula ritmo, distancia o tiempo a partir de dos valores."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pace-calculator-opal.vercel.app/" />
     <title>Calculadora de Ritmo</title>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8TXXMQQTNN"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-8TXXMQQTNN');
-    </script>
   </head>
   <body>
     <script>
-      (function() {
-        const theme = localStorage.getItem('ritmo-calculadora-theme') || 'light';
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
+      (function () {
+        const theme = localStorage.getItem("ritmo-calculadora-theme") || "light";
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
         }
       })();
     </script>

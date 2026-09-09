@@ -30,9 +30,6 @@ describe("imperial distance units", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.outcome.kind).toBe("pace");
-    if (result.outcome.kind === "pace") {
-      expect(result.outcome.base).toBe("km");
-    }
     expect(result.pace).toMatch(/^4:3/);
   });
 
@@ -83,6 +80,38 @@ describe("imperial distance units", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.time).toBe("1:39");
+  });
+
+  it("calculates miles from 4:30 min/km and 7:15", () => {
+    const result = solveMissingField({
+      pace: "4:30",
+      paceUnit: "min",
+      distance: "",
+      distanceUnit: "mi",
+      time: "7:15",
+      timeUnit: "min",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.distanceUnit).toBe("mi");
+    expect(Number(result.distance)).toBeCloseTo(1, 1);
+  });
+
+  it("calculates 400 yards from 4:30 min/km and 1:39", () => {
+    const result = solveMissingField({
+      pace: "4:30",
+      paceUnit: "min",
+      distance: "",
+      distanceUnit: "yd",
+      time: "1:39",
+      timeUnit: "min",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.distanceUnit).toBe("yd");
+    expect(Number(result.distance)).toBeCloseTo(400, -1);
   });
 
   it("converts 1 mile to 1760 yards", () => {
