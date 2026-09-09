@@ -37,6 +37,8 @@ export const messages = {
     paceUnitAria: "Unidad de ritmo",
     distanceUnitAria: "Unidad de distancia",
     timeUnitAria: "Unidad de tiempo",
+    recent: "Recientes",
+    useRecentCalculation: "Usar este cálculo",
   },
   en: {
     title: "Pace Calculator",
@@ -74,6 +76,8 @@ export const messages = {
     paceUnitAria: "Pace unit",
     distanceUnitAria: "Distance unit",
     timeUnitAria: "Time unit",
+    recent: "Recent",
+    useRecentCalculation: "Use this calculation",
   },
 } as const;
 

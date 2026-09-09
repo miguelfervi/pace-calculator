@@ -105,6 +105,8 @@
           {{ t("clear") }}
         </button>
       </div>
+
+      <RecentCalculations :entries="recentCalculations" @select="applyHistory" />
     </div>
   </div>
 </template>
@@ -117,6 +119,7 @@ import { formatOutcome } from "../i18n/formatOutcome";
 import type { DistanceUnit, PaceUnit, TimeUnit } from "../domain/types";
 import AppHeader from "./AppHeader.vue";
 import InputWithSelector from "./InputWithSelector.vue";
+import RecentCalculations from "./RecentCalculations.vue";
 
 const { t } = useI18n();
 
@@ -138,6 +141,8 @@ const {
   changeTimeUnit,
   changeDistanceUnit,
   setTime,
+  applyHistory,
+  recentCalculations,
 } = usePaceCalculator();
 
 const BASE_INPUT_CLASSES =

@@ -8,6 +8,8 @@ import {
 } from "../domain/paceCalculator";
 import { EMPTY_OUTCOME, type CalculatedField, type CalculatorOutcome } from "../domain/types";
 import type { DistanceUnit, PaceUnit, TimeUnit } from "../domain/types";
+import { fieldsFromHistory, type HistoryEntry } from "../domain/history";
+import { useCalculationHistory } from "./useCalculationHistory";
 
 export function usePaceCalculator() {
   const pace = ref("");
@@ -18,6 +20,8 @@ export function usePaceCalculator() {
   const timeUnit = ref<TimeUnit>("min");
   const outcome = ref<CalculatorOutcome>(EMPTY_OUTCOME);
   const calculatedField = ref<CalculatedField | null>(null);
+
+  const { entries: recentCalculations, remember } = useCalculationHistory();
 
   const calculate = (): void => {
     const solved = solveMissingField({
@@ -43,6 +47,15 @@ export function usePaceCalculator() {
     time.value = solved.time;
     timeUnit.value = solved.timeUnit;
     calculatedField.value = solved.missing;
+    remember({
+      pace: solved.pace,
+      paceUnit: solved.paceUnit,
+      distance: solved.distance,
+      distanceUnit: solved.distanceUnit,
+      time: solved.time,
+      timeUnit: solved.timeUnit,
+      calculatedField: solved.missing,
+    });
   };
 
   const resetOutcome = () => {
@@ -93,6 +106,17 @@ export function usePaceCalculator() {
     distanceUnit.value = unit;
   };
 
+  const applyHistory = (entry: HistoryEntry): void => {
+    const fields = fieldsFromHistory(entry);
+    pace.value = fields.pace;
+    paceUnit.value = fields.paceUnit;
+    distance.value = fields.distance;
+    distanceUnit.value = fields.distanceUnit;
+    time.value = fields.time;
+    timeUnit.value = fields.timeUnit;
+    resetOutcome();
+  };
+
   const setTime = (value: string): void => {
     if (calculatedField.value === "time") {
       time.value = value;
@@ -122,5 +146,7 @@ export function usePaceCalculator() {
     changeTimeUnit,
     changeDistanceUnit,
     setTime,
+    applyHistory,
+    recentCalculations,
   };
 }

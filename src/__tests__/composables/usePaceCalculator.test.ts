@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { usePaceCalculator } from "../../composables/usePaceCalculator";
 import { useI18n } from "../../composables/useI18n";
 import { formatOutcome } from "../../i18n/formatOutcome";
+import { resetCalculationHistory } from "../../composables/useCalculationHistory";
 
 describe("usePaceCalculator", () => {
   let calculator: ReturnType<typeof usePaceCalculator>;
@@ -9,6 +10,7 @@ describe("usePaceCalculator", () => {
 
   beforeEach(() => {
     setLocale("es");
+    resetCalculationHistory();
     calculator = usePaceCalculator();
     calculator.clear();
   });
@@ -99,6 +101,37 @@ describe("usePaceCalculator", () => {
       calculator.time.value = "4:30";
       calculator.calculate();
       expect(formatOutcome(calculator.outcome.value, t)).toBe("Introduce exactamente dos valores");
+    });
+  });
+
+  describe("recent calculations", () => {
+    it("remembers a successful calculation and skips errors", () => {
+      calculator.pace.value = "4:30";
+      calculator.calculate();
+      expect(calculator.recentCalculations.value).toEqual([]);
+
+      calculator.distance.value = "1";
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+
+      expect(calculator.recentCalculations.value).toHaveLength(1);
+      expect(calculator.recentCalculations.value[0]?.time).toBe("4:30");
+    });
+
+    it("restores the two inputs and leaves the calculated field empty", () => {
+      calculator.pace.value = "4:30";
+      calculator.distance.value = "1";
+      calculator.distanceUnit.value = "km";
+      calculator.calculate();
+      calculator.clear();
+
+      const [entry] = calculator.recentCalculations.value;
+      calculator.applyHistory(entry!);
+
+      expect(calculator.pace.value).toBe("4:30");
+      expect(calculator.distance.value).toBe("1");
+      expect(calculator.time.value).toBe("");
+      expect(calculator.calculatedField.value).toBeNull();
     });
   });
 

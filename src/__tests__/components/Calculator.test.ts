@@ -2,12 +2,14 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import Calculator from "../../components/Calculator.vue";
 import { useI18n } from "../../composables/useI18n";
+import { resetCalculationHistory } from "../../composables/useCalculationHistory";
 
 describe("Calculator.vue", () => {
   let wrapper: ReturnType<typeof mount>;
 
   beforeEach(() => {
     useI18n().setLocale("es");
+    resetCalculationHistory();
     wrapper = mount(Calculator);
   });
 
@@ -132,5 +134,31 @@ describe("Calculator.vue", () => {
       .trigger("click");
 
     expect(wrapper.find('[role="alert"]').text()).toContain("Introduce exactamente dos valores");
+  });
+
+  it("lists a recent calculation and fills the two inputs from it", async () => {
+    await inputs()[0].vm.$emit("update:modelValue", "4:30");
+    await inputs()[1].vm.$emit("update:selectedUnit", "km");
+    await inputs()[1].vm.$emit("update:modelValue", "1");
+    await wrapper
+      .findAll("button")
+      .find(btn => btn.text() === "Calcular")!
+      .trigger("click");
+
+    expect(wrapper.text()).toContain("Recientes");
+    expect(wrapper.text()).toContain("4:30 min · 1 km → 4:30");
+
+    await wrapper
+      .findAll("button")
+      .find(btn => btn.text() === "Limpiar")!
+      .trigger("click");
+    await wrapper
+      .findAll("button")
+      .find(btn => btn.text() === "4:30 min · 1 km → 4:30")!
+      .trigger("click");
+
+    expect(inputs()[0].props("modelValue")).toBe("4:30");
+    expect(inputs()[1].props("modelValue")).toBe("1");
+    expect(inputs()[2].props("modelValue")).toBe("");
   });
 });
