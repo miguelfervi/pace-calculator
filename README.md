@@ -1,8 +1,10 @@
-# 🏃 Pace Calculator
+# Pace Calculator
 
 A simple pace calculator built with Vue 3 and TypeScript.
 
 Enter any two values (pace, distance, or time) and the app will calculate the missing one.
+
+The UI is available in Spanish and English.
 
 ## Example
 - Pace: 4:10 min/km
