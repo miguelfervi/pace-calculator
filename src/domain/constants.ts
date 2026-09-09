@@ -1,0 +1,9 @@
+export const SECONDS_THRESHOLD = 60;
+export const SECONDS_PER_MINUTE = 60;
+export const MINUTES_PER_HOUR = 60;
+export const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+export const METERS_PER_KM = 1000;
+export const METERS_PER_MILE = 1609.344;
+export const METERS_PER_YARD = 0.9144;
+export const KM_PER_MILE = METERS_PER_MILE / METERS_PER_KM;
+export const PAD_LENGTH = 2;

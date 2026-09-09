@@ -1,13 +1,15 @@
-import { describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "vitest";
 import { nextTick } from "vue";
 import { usePaceCalculator } from "../../composables/usePaceCalculator";
 import { useI18n } from "../../composables/useI18n";
+import { formatOutcome } from "../../i18n/formatOutcome";
 
 describe("usePaceCalculator", () => {
   let calculator: ReturnType<typeof usePaceCalculator>;
+  const { setLocale, t } = useI18n();
 
   beforeEach(() => {
-    useI18n().setLocale("es");
+    setLocale("es");
     calculator = usePaceCalculator();
     calculator.clear();
   });
@@ -16,26 +18,26 @@ describe("usePaceCalculator", () => {
     it("should calculate time from pace and distance (min format)", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.timeUnit.value = "min";
       calculator.calculate();
 
       expect(calculator.time.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Tiempo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Tiempo:");
       expect(calculator.calculatedField.value).toBe("time");
     });
 
     it("should calculate time from pace and distance and auto-adjust unit", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.timeUnit.value = "sec";
       calculator.calculate();
 
       expect(calculator.time.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Tiempo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Tiempo:");
       expect(calculator.calculatedField.value).toBe("time");
       expect(calculator.timeUnit.value).toBe("min");
     });
@@ -43,44 +45,44 @@ describe("usePaceCalculator", () => {
     it("should calculate time from pace in seconds and distance", () => {
       calculator.pace.value = "270";
       calculator.paceUnit.value = "sec";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.timeUnit.value = "min";
       calculator.calculate();
 
       expect(calculator.time.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Tiempo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Tiempo:");
       expect(calculator.calculatedField.value).toBe("time");
     });
 
     it("should calculate time correctly for 2580 seconds (43:00)", () => {
       calculator.pace.value = "4:18";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 10;
+      calculator.distance.value = "10";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
       expect(calculator.time.value).toBe("43:00");
       expect(calculator.timeUnit.value).toBe("min");
-      expect(calculator.result.value).toBe("Tiempo: 43:00");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Tiempo: 43:00");
       expect(calculator.calculatedField.value).toBe("time");
     });
 
     it("should calculate time correctly: 3:35 min/km pace and 200m distance = 43 seconds", () => {
       calculator.pace.value = "3:35";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 200;
+      calculator.distance.value = "200";
       calculator.distanceUnit.value = "m";
       calculator.calculate();
 
       expect(calculator.time.value).toBe("43.0");
       expect(calculator.timeUnit.value).toBe("sec");
-      expect(calculator.result.value).toBe("Tiempo: 43.0 seg");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Tiempo: 43.0 seg");
       expect(calculator.calculatedField.value).toBe("time");
     });
 
     it("should calculate pace from distance and time", () => {
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "25:00";
       calculator.timeUnit.value = "min";
@@ -88,13 +90,13 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.pace.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Ritmo:");
-      expect(calculator.result.value).toContain("min/km");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Ritmo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("min/km");
       expect(calculator.calculatedField.value).toBe("pace");
     });
 
     it("should always show pace result in min/km format even when input unit is sec", () => {
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "5:00";
       calculator.timeUnit.value = "min";
@@ -102,14 +104,14 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.pace.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Ritmo:");
-      expect(calculator.result.value).toContain("min/km");
-      expect(calculator.result.value).not.toContain("seg/km");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Ritmo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("min/km");
+      expect(formatOutcome(calculator.outcome.value, t)).not.toContain("seg/km");
       expect(calculator.calculatedField.value).toBe("pace");
     });
 
     it("should format pace result correctly in min:ss format", () => {
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "5:00";
       calculator.timeUnit.value = "min";
@@ -118,7 +120,7 @@ describe("usePaceCalculator", () => {
 
       const paceValue = calculator.pace.value;
       expect(paceValue).toMatch(/^\d{1,2}:\d{2}(\.\d)?$/);
-      expect(calculator.result.value).toBe(`Ritmo: ${paceValue} min/km`);
+      expect(formatOutcome(calculator.outcome.value, t)).toBe(`Ritmo: ${paceValue} min/km`);
     });
 
     it("should calculate distance from pace and time (min format)", () => {
@@ -129,7 +131,7 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.distance.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Distancia:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Distancia:");
       expect(calculator.calculatedField.value).toBe("distance");
     });
 
@@ -141,7 +143,7 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.distance.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Distancia:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Distancia:");
       expect(calculator.calculatedField.value).toBe("distance");
     });
 
@@ -153,7 +155,7 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.distance.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Distancia:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Distancia:");
       expect(calculator.calculatedField.value).toBe("distance");
     });
 
@@ -162,24 +164,24 @@ describe("usePaceCalculator", () => {
       calculator.paceUnit.value = "min";
       calculator.calculate();
 
-      expect(calculator.result.value).toBe("Introduce exactamente dos valores");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Introduce exactamente dos valores");
     });
 
     it("should show error when all 3 values are provided", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.time.value = "4:30";
       calculator.timeUnit.value = "min";
       calculator.calculate();
 
-      expect(calculator.result.value).toBe("Introduce exactamente dos valores");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Introduce exactamente dos valores");
     });
 
     it("should handle distance in meters correctly", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 1000;
+      calculator.distance.value = "1000";
       calculator.distanceUnit.value = "m";
       calculator.timeUnit.value = "min";
       calculator.calculate();
@@ -193,19 +195,18 @@ describe("usePaceCalculator", () => {
     it("should clear all fields", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.time.value = "25:00";
-      calculator.result.value = "Test result";
       calculator.calculatedField.value = "pace";
 
       calculator.clear();
 
       expect(calculator.pace.value).toBe("");
       expect(calculator.paceUnit.value).toBe("min");
-      expect(calculator.distance.value).toBeNull();
+      expect(calculator.distance.value).toBe("");
       expect(calculator.time.value).toBe("");
       expect(calculator.timeUnit.value).toBe("min");
-      expect(calculator.result.value).toBe("");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("");
       expect(calculator.calculatedField.value).toBeNull();
       expect(calculator.distanceUnit.value).toBe("m");
     });
@@ -214,15 +215,15 @@ describe("usePaceCalculator", () => {
   describe("clearPace", () => {
     it("should clear only pace field", () => {
       calculator.pace.value = "4:30";
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.clearPace();
 
       expect(calculator.pace.value).toBe("");
-      expect(calculator.distance.value).toBe(5);
+      expect(calculator.distance.value).toBe("5");
     });
 
     it("should clear result if pace was calculated", () => {
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.time.value = "25:00";
       calculator.timeUnit.value = "min";
       calculator.paceUnit.value = "min";
@@ -230,7 +231,7 @@ describe("usePaceCalculator", () => {
       expect(calculator.calculatedField.value).toBe("pace");
       calculator.clearPace();
 
-      expect(calculator.result.value).toBe("");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("");
       expect(calculator.calculatedField.value).toBeNull();
     });
   });
@@ -238,10 +239,10 @@ describe("usePaceCalculator", () => {
   describe("clearDistance", () => {
     it("should clear only distance field", () => {
       calculator.pace.value = "4:30";
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.clearDistance();
 
-      expect(calculator.distance.value).toBeNull();
+      expect(calculator.distance.value).toBe("");
       expect(calculator.pace.value).toBe("4:30");
     });
   });
@@ -261,87 +262,87 @@ describe("usePaceCalculator", () => {
     it("should validate pace format in minutes", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
 
     it("should validate pace format in seconds", () => {
       calculator.pace.value = "270";
       calculator.paceUnit.value = "sec";
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
 
     it("should validate pace format with decimals in seconds", () => {
       calculator.pace.value = "270.5";
       calculator.paceUnit.value = "sec";
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
 
     it("should validate time format in mm:ss (min unit)", () => {
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.time.value = "25:00";
       calculator.timeUnit.value = "min";
       calculator.paceUnit.value = "min";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
 
     it("should validate time format as single number (min unit)", () => {
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.time.value = "25";
       calculator.timeUnit.value = "min";
       calculator.paceUnit.value = "min";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
 
     it("should validate time format in seconds (sec unit)", () => {
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.time.value = "1500";
       calculator.timeUnit.value = "sec";
       calculator.paceUnit.value = "min";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
 
     it("should validate time format in hours (decimal format)", () => {
-      calculator.distance.value = 10;
+      calculator.distance.value = "10";
       calculator.time.value = "1.5";
       calculator.timeUnit.value = "hr";
       calculator.paceUnit.value = "min";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
 
     it("should validate time format in hours (H:MM format)", () => {
-      calculator.distance.value = 10;
+      calculator.distance.value = "10";
       calculator.time.value = "1:30";
       calculator.timeUnit.value = "hr";
       calculator.paceUnit.value = "min";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
 
     it("should validate distance", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 0.5;
+      calculator.distance.value = "0.5";
       calculator.calculate();
 
-      expect(calculator.result.value).toBeTruthy();
+      expect(formatOutcome(calculator.outcome.value, t)).toBeTruthy();
     });
   });
 
@@ -349,7 +350,7 @@ describe("usePaceCalculator", () => {
     it("should accept pace input in seconds and use it for calculations", () => {
       calculator.pace.value = "180";
       calculator.paceUnit.value = "sec";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
@@ -358,13 +359,13 @@ describe("usePaceCalculator", () => {
     });
 
     it("should always display calculated pace in min/km format", () => {
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "5:00";
       calculator.paceUnit.value = "sec";
       calculator.calculate();
 
-      const result = calculator.result.value;
+      const result = formatOutcome(calculator.outcome.value, t);
       expect(result).toContain("Ritmo:");
       expect(result).toContain("min/km");
       expect(result).not.toContain("seg/km");
@@ -374,7 +375,7 @@ describe("usePaceCalculator", () => {
     it("should handle pace input in seconds with decimals", () => {
       calculator.pace.value = "270.5";
       calculator.paceUnit.value = "sec";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
@@ -385,7 +386,7 @@ describe("usePaceCalculator", () => {
 
   describe("time input as single number", () => {
     it("should accept time as single number (interpreted as minutes)", () => {
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "50";
       calculator.timeUnit.value = "min";
@@ -393,7 +394,7 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.pace.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Ritmo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Ritmo:");
       expect(calculator.calculatedField.value).toBe("pace");
     });
 
@@ -405,12 +406,12 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.distance.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Distancia:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Distancia:");
       expect(calculator.calculatedField.value).toBe("distance");
     });
 
     it("should handle zero minutes correctly", () => {
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "0";
       calculator.timeUnit.value = "min";
@@ -418,7 +419,7 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.pace.value).toBe("0:00");
-      expect(calculator.result.value).toContain("Ritmo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Ritmo:");
     });
   });
 
@@ -427,7 +428,7 @@ describe("usePaceCalculator", () => {
       // Para que el ritmo sea < 60 seg/km, necesitamos tiempo/distancia < 60
       // Con distancia 0.5 km y tiempo 30 seg, ritmo = 30/0.5 = 60 seg/km (límite)
       // Con distancia 0.6 km y tiempo 30 seg, ritmo = 30/0.6 = 50 seg/km (< 60)
-      calculator.distance.value = 0.6;
+      calculator.distance.value = "0.6";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "30";
       calculator.timeUnit.value = "sec";
@@ -438,7 +439,7 @@ describe("usePaceCalculator", () => {
       expect(parseFloat(calculator.pace.value)).toBeLessThan(60);
       expect(parseFloat(calculator.pace.value)).toBeGreaterThan(0);
       expect(calculator.pace.value).toMatch(/^\d+\.\d$/);
-      expect(calculator.result.value).toContain("seg/km");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("seg/km");
     });
   });
 
@@ -451,9 +452,9 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.distanceUnit.value).toBe("m");
-      expect(calculator.distance.value).toBeGreaterThan(0);
-      expect(calculator.distance.value).toBeLessThan(1000);
-      expect(calculator.result.value).toContain("Distancia:");
+      expect(Number(calculator.distance.value)).toBeGreaterThan(0);
+      expect(Number(calculator.distance.value)).toBeLessThan(1000);
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Distancia:");
     });
   });
 
@@ -461,7 +462,7 @@ describe("usePaceCalculator", () => {
     it("should handle calculation errors gracefully", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "5:00";
       calculator.timeUnit.value = "min";
@@ -483,32 +484,22 @@ describe("usePaceCalculator", () => {
       expect(calculator.pace.value).toBe(originalPace);
     });
 
-    it("should convert pace from min to sec when unit changes", async () => {
+    it("should convert pace from min to sec when unit changes", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      await nextTick();
-      calculator.paceUnit.value = "sec";
-      await nextTick();
+      calculator.changePaceUnit("sec");
 
       expect(calculator.pace.value).not.toBe("4:30");
       expect(calculator.pace.value).toMatch(/^\d+\.\d$/);
     });
 
-    it("should convert pace from sec to min when unit changes", async () => {
-      // Clear first to ensure clean state
+    it("should convert pace from sec to min when unit changes", () => {
       calculator.clear();
-      await nextTick();
-      // Set initial value and unit - start with min, then change to sec
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      await nextTick();
-      calculator.paceUnit.value = "sec";
-      await nextTick();
-      // Verify it converted to seconds
+      calculator.changePaceUnit("sec");
       expect(calculator.pace.value).toMatch(/^\d+\.\d$/);
-      // Now change back to min - oldUnit will be "sec" so the watcher will fire
-      calculator.paceUnit.value = "min";
-      await nextTick();
+      calculator.changePaceUnit("min");
 
       expect(calculator.pace.value).toMatch(/^\d{1,2}:\d{2}/);
     });
@@ -518,7 +509,7 @@ describe("usePaceCalculator", () => {
       calculator.paceUnit.value = "min";
       const originalPace = calculator.pace.value;
 
-      calculator.paceUnit.value = "sec";
+      calculator.changePaceUnit("sec");
 
       expect(calculator.pace.value).toBe(originalPace);
     });
@@ -533,31 +524,21 @@ describe("usePaceCalculator", () => {
       expect(calculator.time.value).toBe(originalTime);
     });
 
-    it("should convert time from min to sec when unit changes", async () => {
+    it("should convert time from min to sec when unit changes", () => {
       calculator.time.value = "5:00";
       calculator.timeUnit.value = "min";
-      await nextTick();
-      calculator.timeUnit.value = "sec";
-      await nextTick();
+      calculator.changeTimeUnit("sec");
 
       expect(calculator.time.value).toMatch(/^\d+\.\d$/);
     });
 
-    it("should convert time from sec to min when unit changes", async () => {
-      // Clear first to ensure clean state
+    it("should convert time from sec to min when unit changes", () => {
       calculator.clear();
-      await nextTick();
-      // Set initial value and unit - start with min, then change to sec
       calculator.time.value = "5:00";
       calculator.timeUnit.value = "min";
-      await nextTick();
-      calculator.timeUnit.value = "sec";
-      await nextTick();
-      // Verify it converted to seconds
+      calculator.changeTimeUnit("sec");
       expect(calculator.time.value).toMatch(/^\d+\.\d$/);
-      // Now change back to min - oldUnit will be "sec" so the watcher will fire
-      calculator.timeUnit.value = "min";
-      await nextTick();
+      calculator.changeTimeUnit("min");
 
       expect(calculator.time.value).toBe("5:00");
     });
@@ -567,23 +548,21 @@ describe("usePaceCalculator", () => {
       calculator.timeUnit.value = "min";
       const originalTime = calculator.time.value;
 
-      calculator.timeUnit.value = "sec";
+      calculator.changeTimeUnit("sec");
 
       expect(calculator.time.value).toBe(originalTime);
     });
 
-    it("should handle time conversion errors", async () => {
+    it("should handle time conversion errors", () => {
       calculator.time.value = "abc";
       calculator.timeUnit.value = "min";
-      await nextTick();
-      calculator.timeUnit.value = "sec";
-      await nextTick();
+      calculator.changeTimeUnit("sec");
 
       expect(calculator.time.value).toBe("");
     });
 
     it("should not convert distance when oldUnit equals newUnit", () => {
-      calculator.distance.value = 5;
+      calculator.distance.value = "5";
       calculator.distanceUnit.value = "km";
       const originalDistance = calculator.distance.value;
 
@@ -592,41 +571,30 @@ describe("usePaceCalculator", () => {
       expect(calculator.distance.value).toBe(originalDistance);
     });
 
-    it("should convert distance from km to m when unit changes", async () => {
-      // Clear first to ensure clean state
+    it("should convert distance from km to m when unit changes", () => {
       calculator.clear();
-      await nextTick();
-      // Set initial value and unit - start with m (default), then change to km
-      calculator.distance.value = 500;
+      calculator.distance.value = "500";
       calculator.distanceUnit.value = "m";
-      await nextTick();
-      calculator.distanceUnit.value = "km";
-      await nextTick();
-      // Verify it converted to km
-      expect(calculator.distance.value).toBe(0.5);
-      // Now change back to m - oldUnit will be "km" so the watcher will fire
-      calculator.distanceUnit.value = "m";
-      await nextTick();
-
-      expect(calculator.distance.value).toBe(500);
+      calculator.changeDistanceUnit("km");
+      expect(calculator.distance.value).toBe("0.5");
+      calculator.changeDistanceUnit("m");
+      expect(calculator.distance.value).toBe("500");
     });
 
     it("should convert distance from m to km when unit changes", async () => {
-      calculator.distance.value = 500;
+      calculator.distance.value = "500";
       calculator.distanceUnit.value = "m";
-      await nextTick();
-      calculator.distanceUnit.value = "km";
-      await nextTick();
+      calculator.changeDistanceUnit("km");
 
-      expect(calculator.distance.value).toBe(0.5);
+      expect(calculator.distance.value).toBe("0.5");
     });
 
-    it("should handle distance conversion when value is null", () => {
-      calculator.distance.value = null;
-      calculator.distanceUnit.value = "km";
+    it("should handle distance conversion when value is empty", () => {
+      calculator.distance.value = "";
+      calculator.changeDistanceUnit("km");
       const originalDistance = calculator.distance.value;
 
-      calculator.distanceUnit.value = "m";
+      calculator.changeDistanceUnit("m");
 
       expect(calculator.distance.value).toBe(originalDistance);
     });
@@ -644,7 +612,7 @@ describe("usePaceCalculator", () => {
     it("should not convert pace when isCalculating is true", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
@@ -657,7 +625,7 @@ describe("usePaceCalculator", () => {
     it("should not convert time when isCalculating is true", () => {
       calculator.time.value = "5:00";
       calculator.timeUnit.value = "min";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
@@ -685,32 +653,32 @@ describe("usePaceCalculator", () => {
     it("should automatically convert to hours when calculated time is >= 60 minutes", () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 12;
+      calculator.distance.value = "12";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
       expect(calculator.timeUnit.value).toBe("hr");
       expect(calculator.time.value).toBe("1:00");
-      expect(calculator.result.value).toContain("Tiempo:");
-      expect(calculator.result.value).toContain("h");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Tiempo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("h");
       expect(calculator.calculatedField.value).toBe("time");
     });
 
     it("should automatically convert to hours for 90 minutes (1:30)", () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 18;
+      calculator.distance.value = "18";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
       expect(calculator.timeUnit.value).toBe("hr");
       expect(calculator.time.value).toBe("1:30");
-      expect(calculator.result.value).toContain("Tiempo:");
-      expect(calculator.result.value).toContain("h");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Tiempo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("h");
     });
 
     it("should calculate pace from distance and time in hours (decimal format)", () => {
-      calculator.distance.value = 10;
+      calculator.distance.value = "10";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "1.5";
       calculator.timeUnit.value = "hr";
@@ -718,12 +686,12 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.pace.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Ritmo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Ritmo:");
       expect(calculator.calculatedField.value).toBe("pace");
     });
 
     it("should calculate pace from distance and time in hours (H:MM format)", () => {
-      calculator.distance.value = 10;
+      calculator.distance.value = "10";
       calculator.distanceUnit.value = "km";
       calculator.time.value = "1:30";
       calculator.timeUnit.value = "hr";
@@ -731,7 +699,7 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.pace.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Ritmo:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Ritmo:");
       expect(calculator.calculatedField.value).toBe("pace");
     });
 
@@ -743,60 +711,42 @@ describe("usePaceCalculator", () => {
       calculator.calculate();
 
       expect(calculator.distance.value).toBeTruthy();
-      expect(calculator.result.value).toContain("Distancia:");
+      expect(formatOutcome(calculator.outcome.value, t)).toContain("Distancia:");
       expect(calculator.calculatedField.value).toBe("distance");
     });
 
-    it("should convert time from min to hr when unit changes", async () => {
+    it("should convert time from min to hr when unit changes", () => {
       calculator.clear();
-      await nextTick();
       calculator.time.value = "90:00";
       calculator.timeUnit.value = "min";
-      await nextTick();
-      calculator.timeUnit.value = "hr";
-      await nextTick();
+      calculator.changeTimeUnit("hr");
 
       expect(calculator.time.value).toBe("1:30");
     });
 
-    it("should convert time from hr to min when unit changes", async () => {
+    it("should convert time from hr to min when unit changes", () => {
       calculator.clear();
-      await nextTick();
-      // Set timeUnit first to avoid watcher triggering with wrong unit
       calculator.timeUnit.value = "hr";
-      await nextTick();
       calculator.time.value = "1:30";
-      await nextTick();
-      calculator.timeUnit.value = "min";
-      await nextTick();
+      calculator.changeTimeUnit("min");
 
       expect(calculator.time.value).toBe("90:00");
     });
 
-    it("should convert time from hr to sec when unit changes", async () => {
+    it("should convert time from hr to sec when unit changes", () => {
       calculator.clear();
-      await nextTick();
-      // Set timeUnit first to avoid watcher triggering with wrong unit
       calculator.timeUnit.value = "hr";
-      await nextTick();
       calculator.time.value = "1:00";
-      await nextTick();
-      calculator.timeUnit.value = "sec";
-      await nextTick();
+      calculator.changeTimeUnit("sec");
 
       expect(calculator.time.value).toBe("3600.0");
     });
 
-    it("should convert time from sec to hr when unit changes", async () => {
+    it("should convert time from sec to hr when unit changes", () => {
       calculator.clear();
-      await nextTick();
-      // Set timeUnit first to avoid watcher triggering with wrong unit
       calculator.timeUnit.value = "sec";
-      await nextTick();
       calculator.time.value = "5400";
-      await nextTick();
-      calculator.timeUnit.value = "hr";
-      await nextTick();
+      calculator.changeTimeUnit("hr");
 
       expect(calculator.time.value).toBe("1:30");
     });
@@ -814,7 +764,7 @@ describe("usePaceCalculator", () => {
     it("should not convert to hours when time is exactly 59 minutes", () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 11.8;
+      calculator.distance.value = "11.8";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
@@ -826,7 +776,7 @@ describe("usePaceCalculator", () => {
     it("should convert to hours when time is exactly 60 minutes", () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 12;
+      calculator.distance.value = "12";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
@@ -835,37 +785,28 @@ describe("usePaceCalculator", () => {
       expect(calculator.time.value).toBe("1:00");
     });
 
-    it("should automatically convert seconds to minutes when user inputs >= 60 seconds", async () => {
+    it("should automatically convert seconds to minutes when user inputs >= 60 seconds", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "90";
-      await nextTick();
+      calculator.setTime("90");
 
       expect(calculator.timeUnit.value).toBe("min");
       expect(calculator.time.value).toBe("1:30");
     });
 
-    it("should automatically convert seconds to hours when user inputs >= 3600 seconds", async () => {
+    it("should automatically convert seconds to hours when user inputs >= 3600 seconds", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "5400";
-      await nextTick();
+      calculator.setTime("5400");
 
       expect(calculator.timeUnit.value).toBe("hr");
       expect(calculator.time.value).toBe("1:30");
     });
 
-    it("should not convert seconds to minutes when value is < 60 seconds", async () => {
+    it("should not convert seconds to minutes when value is < 60 seconds", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "45";
-      await nextTick();
+      calculator.setTime("45");
 
       expect(calculator.timeUnit.value).toBe("sec");
       expect(calculator.time.value).toBe("45");
@@ -874,92 +815,71 @@ describe("usePaceCalculator", () => {
     it("should not auto-convert when time is calculated (not manually entered)", () => {
       calculator.pace.value = "4:30";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
       expect(calculator.calculatedField.value).toBe("time");
     });
 
-    it("should convert exactly 60 seconds to minutes", async () => {
+    it("should convert exactly 60 seconds to minutes", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "60";
-      await nextTick();
+      calculator.setTime("60");
 
       expect(calculator.timeUnit.value).toBe("min");
       expect(calculator.time.value).toBe("1:00");
     });
 
-    it("should convert exactly 59 seconds but stay in seconds", async () => {
+    it("should convert exactly 59 seconds but stay in seconds", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "59";
-      await nextTick();
+      calculator.setTime("59");
 
       expect(calculator.timeUnit.value).toBe("sec");
       expect(calculator.time.value).toBe("59");
     });
 
-    it("should convert exactly 3600 seconds to hours", async () => {
+    it("should convert exactly 3600 seconds to hours", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "3600";
-      await nextTick();
+      calculator.setTime("3600");
 
       expect(calculator.timeUnit.value).toBe("hr");
       expect(calculator.time.value).toBe("1:00");
     });
 
-    it("should convert 3599 seconds to minutes (not hours)", async () => {
+    it("should convert 3599 seconds to minutes (not hours)", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "3599";
-      await nextTick();
+      calculator.setTime("3599");
 
       expect(calculator.timeUnit.value).toBe("min");
       expect(calculator.time.value).toBe("59:59");
     });
 
-    it("should convert 61 seconds to minutes", async () => {
+    it("should convert 61 seconds to minutes", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "61";
-      await nextTick();
+      calculator.setTime("61");
 
       expect(calculator.timeUnit.value).toBe("min");
       expect(calculator.time.value).toBe("1:01");
     });
 
-    it("should not convert when time value is empty", async () => {
+    it("should not convert when time value is empty", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "";
-      await nextTick();
+      calculator.setTime("");
 
       expect(calculator.timeUnit.value).toBe("sec");
       expect(calculator.time.value).toBe("");
     });
 
-    it("should not convert when time value is invalid (NaN)", async () => {
+    it("should not convert when time value is invalid (NaN)", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "abc";
-      await nextTick();
+      calculator.setTime("abc");
 
       expect(calculator.timeUnit.value).toBe("sec");
       expect(calculator.time.value).toBe("abc");
@@ -968,7 +888,7 @@ describe("usePaceCalculator", () => {
     it("should not auto-convert when calculatedField is 'time'", async () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 1;
+      calculator.distance.value = "1";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
       await nextTick();
@@ -986,52 +906,38 @@ describe("usePaceCalculator", () => {
       expect(calculator.time.value).toBe("100");
     });
 
-    it("should convert min to hr when manually changing unit for value >= 60 minutes", async () => {
+    it("should convert min to hr when manually changing unit for value >= 60 minutes", () => {
       calculator.clear();
-      await nextTick();
       calculator.time.value = "90:00";
       calculator.timeUnit.value = "min";
-      await nextTick();
-      calculator.timeUnit.value = "hr";
-      await nextTick();
+      calculator.changeTimeUnit("hr");
 
       expect(calculator.time.value).toBe("1:30");
     });
 
-    it("should convert hr to min when manually changing unit", async () => {
+    it("should convert hr to min when manually changing unit", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "hr";
-      await nextTick();
       calculator.time.value = "1:30";
-      await nextTick();
-      calculator.timeUnit.value = "min";
-      await nextTick();
+      calculator.changeTimeUnit("min");
 
       expect(calculator.time.value).toBe("90:00");
     });
 
-    it("should convert hr to sec when manually changing unit", async () => {
+    it("should convert hr to sec when manually changing unit", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "hr";
-      await nextTick();
       calculator.time.value = "2:00";
-      await nextTick();
-      calculator.timeUnit.value = "sec";
-      await nextTick();
+      calculator.changeTimeUnit("sec");
 
       expect(calculator.time.value).toBe("7200.0");
     });
 
-    it("should convert sec to hr when manually changing unit for value >= 3600 seconds", async () => {
+    it("should convert sec to hr when manually changing unit for value >= 3600 seconds", () => {
       calculator.clear();
-      await nextTick();
       calculator.time.value = "7200";
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.timeUnit.value = "hr";
-      await nextTick();
+      calculator.changeTimeUnit("hr");
 
       expect(calculator.time.value).toBe("2:00");
     });
@@ -1039,103 +945,92 @@ describe("usePaceCalculator", () => {
     it("should calculate time and stay in minutes when result is < 60 minutes", () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 10;
+      calculator.distance.value = "10";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
       expect(calculator.timeUnit.value).toBe("min");
       expect(calculator.time.value).toBe("50:00");
-      expect(calculator.result.value).toBe("Tiempo: 50:00");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Tiempo: 50:00");
     });
 
     it("should calculate time and convert to hours when result is exactly 60 minutes", () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 12;
+      calculator.distance.value = "12";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
       expect(calculator.timeUnit.value).toBe("hr");
       expect(calculator.time.value).toBe("1:00");
-      expect(calculator.result.value).toBe("Tiempo: 1:00 h");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Tiempo: 1:00 h");
     });
 
     it("should calculate time and stay in seconds when result is < 60 seconds", () => {
       calculator.pace.value = "3:35";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 200;
+      calculator.distance.value = "200";
       calculator.distanceUnit.value = "m";
       calculator.calculate();
 
       expect(calculator.timeUnit.value).toBe("sec");
       expect(calculator.time.value).toBe("43.0");
-      expect(calculator.result.value).toBe("Tiempo: 43.0 seg");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Tiempo: 43.0 seg");
     });
 
     it("should format time result correctly with hours unit", () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 24;
+      calculator.distance.value = "24";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
-      expect(calculator.result.value).toBe("Tiempo: 2:00 h");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Tiempo: 2:00 h");
     });
 
     it("should format time result correctly with minutes unit (no label)", () => {
       calculator.pace.value = "5:00";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 10;
+      calculator.distance.value = "10";
       calculator.distanceUnit.value = "km";
       calculator.calculate();
 
-      expect(calculator.result.value).toBe("Tiempo: 50:00");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Tiempo: 50:00");
     });
 
     it("should format time result correctly with seconds unit", () => {
       calculator.pace.value = "3:35";
       calculator.paceUnit.value = "min";
-      calculator.distance.value = 200;
+      calculator.distance.value = "200";
       calculator.distanceUnit.value = "m";
       calculator.calculate();
 
-      expect(calculator.result.value).toBe("Tiempo: 43.0 seg");
+      expect(formatOutcome(calculator.outcome.value, t)).toBe("Tiempo: 43.0 seg");
     });
 
-    it("should handle conversion from hours decimal format (1.5) to minutes", async () => {
+    it("should handle conversion from hours decimal format (1.5) to minutes", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "hr";
-      await nextTick();
       calculator.time.value = "1.5";
-      await nextTick();
-      calculator.timeUnit.value = "min";
-      await nextTick();
+      calculator.changeTimeUnit("min");
 
       expect(calculator.time.value).toBe("90:00");
     });
 
-    it("should handle conversion from hours H:MM format (1:30) to seconds", async () => {
+    it("should handle conversion from hours H:MM format (1:30) to seconds", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "hr";
-      await nextTick();
       calculator.time.value = "1:30";
-      await nextTick();
-      calculator.timeUnit.value = "sec";
-      await nextTick();
+      calculator.changeTimeUnit("sec");
 
       expect(calculator.time.value).toBe("5400.0");
     });
 
-    it("should handle conversion from minutes to hours for large values", async () => {
+    it("should handle conversion from minutes to hours for large values", () => {
       calculator.clear();
-      await nextTick();
       calculator.time.value = "120:00";
       calculator.timeUnit.value = "min";
-      await nextTick();
-      calculator.timeUnit.value = "hr";
-      await nextTick();
+      calculator.changeTimeUnit("hr");
 
       expect(calculator.time.value).toBe("2:00");
     });
@@ -1151,25 +1046,19 @@ describe("usePaceCalculator", () => {
       expect(calculator.time.value).toBe("90");
     });
 
-    it("should handle multiple rapid conversions without errors", async () => {
+    it("should handle multiple rapid conversions without errors", () => {
       calculator.clear();
-      await nextTick();
       calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "90";
-      await nextTick();
+      calculator.setTime("90");
       expect(calculator.timeUnit.value).toBe("min");
       expect(calculator.time.value).toBe("1:30");
 
-      calculator.timeUnit.value = "sec";
-      await nextTick();
-      calculator.time.value = "90";
-      await nextTick();
+      calculator.changeTimeUnit("sec");
+      calculator.setTime("90");
       expect(calculator.timeUnit.value).toBe("min");
       expect(calculator.time.value).toBe("1:30");
 
-      calculator.timeUnit.value = "hr";
-      await nextTick();
+      calculator.changeTimeUnit("hr");
       expect(calculator.time.value).toBe("0:01");
     });
   });

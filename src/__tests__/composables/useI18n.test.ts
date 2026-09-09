@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "vitest";
 import { useI18n } from "../../composables/useI18n";
 
 describe("useI18n", () => {

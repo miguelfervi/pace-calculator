@@ -1,9 +1,7 @@
-import { describe, it, expect } from "@jest/globals";
-import { useTimeUtils } from "../../composables/useTimeUtils";
+import { describe, it, expect } from "vitest";
+import { timeToSeconds, paceToSeconds, secondsToTime, secondsToPace } from "../../domain/timeUtils";
 
-describe("useTimeUtils", () => {
-  const { timeToSeconds, paceToSeconds, secondsToTime, secondsToPace } = useTimeUtils();
-
+describe("timeUtils", () => {
   describe("timeToSeconds", () => {
     it("should convert mm:ss format to seconds", () => {
       expect(timeToSeconds("5:30")).toBe(330);

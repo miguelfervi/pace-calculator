@@ -1,82 +1,6 @@
 <template>
-  <div class="max-w-md mx-auto mt-0 pt-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-    <div
-      class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-6"
-    >
-      <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">
-        {{ t("title") }}
-      </h1>
-      <div class="flex items-center gap-2 sm:gap-3">
-        <div
-          class="inline-flex rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden"
-          role="group"
-          :aria-label="t('language')"
-        >
-          <button
-            type="button"
-            class="px-2 py-1 text-xs font-semibold transition-colors"
-            :class="localeButtonClass('es')"
-            :aria-pressed="locale === 'es'"
-            @click="setLocale('es')"
-          >
-            ES
-          </button>
-          <button
-            type="button"
-            class="px-2 py-1 text-xs font-semibold transition-colors"
-            :class="localeButtonClass('en')"
-            :aria-pressed="locale === 'en'"
-            @click="setLocale('en')"
-          >
-            EN
-          </button>
-        </div>
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-            />
-          </svg>
-          <label
-            class="relative inline-flex items-center cursor-pointer"
-            :aria-label="theme === 'light' ? t('themeToDark') : t('themeToLight')"
-          >
-            <input
-              type="checkbox"
-              class="sr-only peer"
-              :checked="theme === 'dark'"
-              @change="toggleTheme"
-            />
-            <div
-              class="w-11 h-6 sm:w-14 sm:h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 sm:peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 sm:after:h-6 sm:after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-            ></div>
-          </label>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-            />
-          </svg>
-        </div>
-      </div>
-    </div>
+  <div class="w-full max-w-md mx-auto rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
+    <AppHeader />
 
     <div
       class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md"
@@ -99,8 +23,8 @@
         :input-classes="paceClasses"
         :is-calculated="calculatedField === 'pace'"
         :calculated-title="t('calculatedValue')"
-        @update:model-value="val => (pace = val as string)"
-        @update:selected-unit="val => (paceUnit = val as 'min' | 'sec')"
+        @update:model-value="val => (pace = val)"
+        @update:selected-unit="changePaceUnit"
         @clear="clearPace"
       />
 
@@ -110,14 +34,13 @@
         :selected-unit="distanceUnit"
         :placeholder="distancePlaceholder"
         :options="distanceOptions"
-        input-type="number"
-        :is-visible="distance !== null && distance !== undefined"
+        :is-visible="distance.trim() !== ''"
         :clear-title="t('clearDistance')"
         :input-classes="distanceClasses"
         :is-calculated="calculatedField === 'distance'"
         :calculated-title="t('calculatedValue')"
-        @update:model-value="val => (distance = val as number | null)"
-        @update:selected-unit="val => (distanceUnit = val as 'km' | 'm')"
+        @update:model-value="val => (distance = val)"
+        @update:selected-unit="changeDistanceUnit"
         @clear="clearDistance"
       />
 
@@ -132,14 +55,16 @@
         :input-classes="timeClasses"
         :is-calculated="calculatedField === 'time'"
         :calculated-title="t('calculatedValue')"
-        @update:model-value="val => (time = val as string)"
-        @update:selected-unit="val => (timeUnit = val as 'min' | 'sec' | 'hr')"
+        @update:model-value="setTime"
+        @update:selected-unit="changeTimeUnit"
         @clear="clearTime"
       />
 
       <div
-        v-if="isResultError"
+        v-if="outcome.kind === 'error'"
         class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md flex items-start gap-2"
+        role="alert"
+        aria-live="polite"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -147,6 +72,7 @@
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -155,8 +81,10 @@
             d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <p class="text-red-800 dark:text-red-200 text-sm">{{ result }}</p>
+        <p class="text-red-800 dark:text-red-200 text-sm">{{ resultMessage }}</p>
       </div>
+
+      <p v-else-if="resultMessage" class="sr-only" aria-live="polite">{{ resultMessage }}</p>
 
       <div class="flex gap-3 pt-2">
         <button
@@ -179,13 +107,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { usePaceCalculator } from "../composables/usePaceCalculator";
-import { useTheme } from "../composables/useTheme";
 import { useI18n } from "../composables/useI18n";
-import type { Locale } from "../i18n/messages";
+import { formatOutcome } from "../i18n/formatOutcome";
+import type { DistanceUnit, PaceUnit, TimeUnit } from "../domain/types";
+import AppHeader from "./AppHeader.vue";
 import InputWithSelector from "./InputWithSelector.vue";
 
-const { theme, toggleTheme } = useTheme();
-const { locale, t, setLocale } = useI18n();
+const { t } = useI18n();
 
 const {
   pace,
@@ -194,13 +122,17 @@ const {
   distanceUnit,
   time,
   timeUnit,
-  result,
+  outcome,
   calculatedField,
   calculate,
   clear,
   clearPace,
   clearDistance,
   clearTime,
+  changePaceUnit,
+  changeTimeUnit,
+  changeDistanceUnit,
+  setTime,
 } = usePaceCalculator();
 
 const BASE_INPUT_CLASSES =
@@ -220,45 +152,47 @@ const paceClasses = getInputClasses("pace");
 const distanceClasses = getInputClasses("distance");
 const timeClasses = getInputClasses("time");
 
-const pacePlaceholder = computed(() => (paceUnit.value === "min" ? "4:30.5" : "270.5"));
-const distancePlaceholder = computed(() => (distanceUnit.value === "km" ? "0.4" : "400"));
+const pacePlaceholder = computed(() => {
+  return paceUnit.value === "min" ? "4:30.5" : "270.5";
+});
+const distancePlaceholder = computed(() => {
+  if (distanceUnit.value === "km") return "5";
+  if (distanceUnit.value === "mi") return "3.1";
+  if (distanceUnit.value === "yd") return "400";
+  return "400";
+});
 const timePlaceholder = computed(() => {
   if (timeUnit.value === "sec") return "3000";
   if (timeUnit.value === "hr") return t("timePlaceholderHour");
   return t("timePlaceholderMin");
 });
 
-const isResultError = computed(() => {
-  if (!result.value) return false;
+const resultMessage = computed(() => formatOutcome(outcome.value, t));
 
-  const filledFields = [
-    pace.value && pace.value.trim() !== "",
-    distance.value !== null && distance.value !== undefined,
-    time.value && time.value.trim() !== "",
-  ].filter(Boolean).length;
-
-  return filledFields < 2 || (filledFields === 3 && calculatedField.value === null);
+const paceOptions = computed(() => {
+  const options: { value: PaceUnit; label: string }[] = [
+    { value: "min", label: "min" },
+    { value: "sec", label: t("unitSec") },
+  ];
+  return options;
 });
 
-const paceOptions = computed(() => [
-  { value: "min", label: "min" },
-  { value: "sec", label: t("unitSec") },
-]);
+const distanceOptions = computed(() => {
+  const options: { value: DistanceUnit; label: string }[] = [
+    { value: "m", label: t("distanceUnitM") },
+    { value: "km", label: t("distanceUnitKm") },
+    { value: "yd", label: t("distanceUnitYd") },
+    { value: "mi", label: t("distanceUnitMi") },
+  ];
+  return options;
+});
 
-const distanceOptions = [
-  { value: "m", label: "m" },
-  { value: "km", label: "km" },
-];
-
-const timeOptions = computed(() => [
-  { value: "min", label: "min" },
-  { value: "sec", label: t("unitSec") },
-  { value: "hr", label: t("unitHour") },
-]);
-
-const localeButtonClass = (value: Locale) => {
-  return locale.value === value
-    ? "bg-blue-600 text-white"
-    : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600";
-};
+const timeOptions = computed(() => {
+  const options: { value: TimeUnit; label: string }[] = [
+    { value: "min", label: "min" },
+    { value: "sec", label: t("unitSec") },
+    { value: "hr", label: t("unitHour") },
+  ];
+  return options;
+});
 </script>

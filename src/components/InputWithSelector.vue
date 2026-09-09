@@ -3,18 +3,14 @@
     <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
       {{ label }}
     </span>
-    <div class="flex gap-2 items-stretch">
-      <div class="relative flex-1">
+    <div class="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_5.5rem] items-stretch gap-2">
+      <div class="relative min-w-0">
         <input
-          :value="displayValue"
-          :type="inputType"
+          :value="modelValue"
+          type="text"
+          inputmode="decimal"
           :placeholder="placeholder"
-          :class="[
-            inputClasses,
-            inputType === 'number' ? 'no-spinner' : '',
-            isCalculated ? 'pr-16' : '',
-            'text-sm',
-          ]"
+          :class="[inputClasses, isCalculated ? 'pr-16' : '', 'text-sm']"
           @input="handleInput"
         />
         <div
@@ -28,6 +24,7 @@
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               stroke-linecap="round"
@@ -37,12 +34,7 @@
             />
           </svg>
         </div>
-        <ClearButton
-          :visible="isVisible"
-          :on-click="handleClear"
-          :title="clearTitle"
-          :aria-label="clearTitle"
-        />
+        <ClearButton :visible="isVisible" :title="clearTitle" @click="emit('clear')" />
       </div>
       <select :value="selectedUnit" :class="SELECT_CLASSES" @change="handleUnitChange">
         <option v-for="option in options" :key="option.value" :value="option.value">
@@ -53,75 +45,43 @@
   </label>
 </template>
 
-<script setup lang="ts">
-import { computed } from "vue";
+<script setup lang="ts" generic="T extends string">
 import ClearButton from "./ClearButton.vue";
 
 interface Option {
-  value: string;
+  value: T;
   label: string;
 }
 
-interface Props {
+defineProps<{
   label: string;
-  modelValue: string | number | null;
-  selectedUnit: string;
+  modelValue: string;
+  selectedUnit: T;
   placeholder: string;
   options: Option[];
-  inputType?: "text" | "number";
   isVisible: boolean;
   clearTitle: string;
   inputClasses: string | string[];
   isCalculated?: boolean;
   calculatedTitle?: string;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  inputType: "text",
-  isCalculated: false,
-  calculatedTitle: "",
-});
+}>();
 
 const emit = defineEmits<{
-  "update:modelValue": [value: string | number | null];
-  "update:selectedUnit": [value: string];
+  "update:modelValue": [value: string];
+  "update:selectedUnit": [value: T];
   clear: [];
 }>();
 
 const SELECT_CLASSES =
-  "w-24 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition font-medium text-sm";
-
-const displayValue = computed(() => {
-  if (props.modelValue === null || props.modelValue === undefined) {
-    return "";
-  }
-  return String(props.modelValue);
-});
+  "h-full w-full min-w-0 px-1.5 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white cursor-pointer outline-none transition font-medium text-sm";
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  const value = props.inputType === "number" ? Number(target.value) : target.value;
-  emit("update:modelValue", value);
+  emit("update:modelValue", target.value);
 };
 
 const handleUnitChange = (event: Event) => {
   const target = event.target as HTMLSelectElement;
-  emit("update:selectedUnit", target.value);
-};
-
-const handleClear = () => {
-  emit("clear");
+  emit("update:selectedUnit", target.value as T);
 };
 </script>
-
-<style scoped>
-.no-spinner::-webkit-inner-spin-button,
-.no-spinner::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.no-spinner {
-  -moz-appearance: textfield;
-}
-</style>

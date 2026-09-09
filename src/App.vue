@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full min-h-screen flex flex-col items-center justify-start pt-8 px-4 bg-gray-50 dark:bg-gray-900"
+    class="flex min-h-screen w-full flex-col items-center justify-start bg-gray-50 px-3 py-4 dark:bg-gray-900 sm:px-4 sm:py-8"
   >
     <Calculator />
   </div>
