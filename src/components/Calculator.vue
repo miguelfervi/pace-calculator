@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-md mx-auto space-y-3">
+  <div class="mx-auto w-full max-w-xs space-y-3">
     <div class="rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
       <AppHeader />
 
