@@ -20,7 +20,7 @@
         <div
           v-if="isCalculated"
           class="absolute right-12 top-1/2 -translate-y-1/2 text-green-600 dark:text-green-400"
-          title="Valor calculado"
+          :title="calculatedTitle"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -73,11 +73,13 @@ interface Props {
   clearTitle: string;
   inputClasses: string | string[];
   isCalculated?: boolean;
+  calculatedTitle?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   inputType: "text",
   isCalculated: false,
+  calculatedTitle: "",
 });
 
 const emit = defineEmits<{

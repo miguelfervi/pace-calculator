@@ -1,6 +1,7 @@
 import { ref, watch, nextTick } from "vue";
 import { z } from "zod";
 import { useTimeUtils } from "./useTimeUtils";
+import { useI18n } from "./useI18n";
 
 type DistanceUnit = "km" | "m";
 type PaceUnit = "min" | "sec";
@@ -21,6 +22,7 @@ const METERS_TO_KM = 1000;
 
 export function usePaceCalculator() {
   const { timeToSeconds, paceToSeconds, secondsToTime, secondsToPace } = useTimeUtils();
+  const { t, locale } = useI18n();
 
   const pace = ref<string>("");
   const paceUnit = ref<PaceUnit>("min");
@@ -77,8 +79,13 @@ export function usePaceCalculator() {
 
   const formatTimeResult = (totalSeconds: number): string => {
     const timeFormatted = secondsToTime(totalSeconds, timeUnit.value);
-    const unitLabel = timeUnit.value === "sec" ? "seg" : timeUnit.value === "hr" ? "h" : "";
-    return `Tiempo: ${timeFormatted} ${unitLabel}`.trim();
+    const unitLabel =
+      timeUnit.value === "sec"
+        ? t("timeUnitSec")
+        : timeUnit.value === "hr"
+          ? t("timeUnitHour")
+          : "";
+    return `${t("resultTime")}: ${timeFormatted} ${unitLabel}`.trim();
   };
 
   const calculateTime = (paceValue: string, distanceInKm: number, unit: PaceUnit): void => {
@@ -114,8 +121,8 @@ export function usePaceCalculator() {
       pace.value = secondsToPace(paceInSeconds, "min");
     }
 
-    const unitLabel = paceUnit.value === "sec" ? "seg/km" : "min/km";
-    result.value = `Ritmo: ${pace.value} ${unitLabel}`;
+    const unitLabel = paceUnit.value === "sec" ? t("paceUnitSec") : t("paceUnitMin");
+    result.value = `${t("resultPace")}: ${pace.value} ${unitLabel}`;
     calculatedField.value = "pace";
 
     nextTick(() => {
@@ -141,7 +148,7 @@ export function usePaceCalculator() {
       distance.value = calculatedDistanceInKm;
     }
 
-    result.value = `Distancia: ${formatDistance(calculatedDistanceInKm, distanceUnit.value)}`;
+    result.value = `${t("resultDistance")}: ${formatDistance(calculatedDistanceInKm, distanceUnit.value)}`;
     calculatedField.value = "distance";
 
     nextTick(() => {
@@ -162,7 +169,7 @@ export function usePaceCalculator() {
     const filledCount = Object.values(validations).filter(Boolean).length;
 
     if (filledCount !== 2) {
-      result.value = "Introduce exactamente dos valores";
+      result.value = t("errorTwoValues");
       return;
     }
 
@@ -179,7 +186,7 @@ export function usePaceCalculator() {
         calculateDistance(pace.value, time.value, timeUnit.value, paceUnit.value);
       }
     } catch {
-      result.value = "Error al realizar el cálculo. Verifica los valores ingresados.";
+      result.value = t("errorCalculation");
     }
   };
 
@@ -318,6 +325,12 @@ export function usePaceCalculator() {
   watch(distanceUnit, (newUnit, oldUnit) => {
     if (oldUnit && distance.value !== null && !isCalculating.value) {
       convertDistanceToNewUnit(oldUnit, newUnit);
+    }
+  });
+
+  watch(locale, (newLocale, oldLocale) => {
+    if (oldLocale && newLocale !== oldLocale && result.value) {
+      calculate();
     }
   });
 

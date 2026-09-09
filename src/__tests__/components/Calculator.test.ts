@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { mount } from "@vue/test-utils";
 import Calculator from "../../components/Calculator.vue";
+import { useI18n } from "../../composables/useI18n";
 
 describe("Calculator.vue", () => {
   let wrapper: ReturnType<typeof mount>;
 
   beforeEach(() => {
+    useI18n().setLocale("es");
     wrapper = mount(Calculator);
   });
 
@@ -74,6 +76,18 @@ describe("Calculator.vue", () => {
       expect(input.props("isCalculated")).toBeDefined();
       expect(typeof input.props("isCalculated")).toBe("boolean");
     });
+  });
+
+  it("should switch the UI to English", async () => {
+    const englishButton = wrapper.findAll("button").find(btn => btn.text() === "EN");
+    expect(englishButton?.exists()).toBe(true);
+
+    await englishButton!.trigger("click");
+
+    expect(wrapper.find("h1").text()).toBe("Pace Calculator");
+    expect(wrapper.find(".bg-amber-50").text()).toContain("Info:");
+    expect(wrapper.findAll("button").some(btn => btn.text() === "Calculate")).toBe(true);
+    expect(wrapper.findAll("button").some(btn => btn.text() === "Clear")).toBe(true);
   });
 
   it("should not show error message initially", () => {

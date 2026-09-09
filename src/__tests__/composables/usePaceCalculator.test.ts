@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import { nextTick } from "vue";
 import { usePaceCalculator } from "../../composables/usePaceCalculator";
+import { useI18n } from "../../composables/useI18n";
 
 describe("usePaceCalculator", () => {
   let calculator: ReturnType<typeof usePaceCalculator>;
 
   beforeEach(() => {
+    useI18n().setLocale("es");
     calculator = usePaceCalculator();
     calculator.clear();
   });
