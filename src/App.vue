@@ -7,5 +7,9 @@
 </template>
 
 <script setup lang="ts">
+import { inject } from "@vercel/analytics";
 import Calculator from "./components/Calculator.vue";
+
+// Initialize Vercel Web Analytics
+inject();
 </script>
