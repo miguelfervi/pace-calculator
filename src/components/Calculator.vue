@@ -1,113 +1,115 @@
 <template>
-  <div class="w-full max-w-md mx-auto rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
-    <AppHeader />
-
-    <div
-      class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md"
-    >
-      <p class="text-sm text-amber-800 dark:text-amber-200">
-        <span class="font-semibold">{{ t("infoLabel") }}</span>
-        {{ t("infoText") }}
-      </p>
-    </div>
-
-    <div class="space-y-4">
-      <InputWithSelector
-        :label="t('pace')"
-        :model-value="pace"
-        :selected-unit="paceUnit"
-        :placeholder="pacePlaceholder"
-        :options="paceOptions"
-        :is-visible="!!pace && pace.trim() !== ''"
-        :clear-title="t('clearPace')"
-        :unit-aria-label="t('paceUnitAria')"
-        :input-classes="paceClasses"
-        :is-calculated="calculatedField === 'pace'"
-        :calculated-title="t('calculatedValue')"
-        @update:model-value="val => (pace = val)"
-        @update:selected-unit="changePaceUnit"
-        @clear="clearPace"
-      />
-
-      <InputWithSelector
-        :label="t('distance')"
-        :model-value="distance"
-        :selected-unit="distanceUnit"
-        :placeholder="distancePlaceholder"
-        :options="distanceOptions"
-        :is-visible="distance.trim() !== ''"
-        :clear-title="t('clearDistance')"
-        :unit-aria-label="t('distanceUnitAria')"
-        :input-classes="distanceClasses"
-        :is-calculated="calculatedField === 'distance'"
-        :calculated-title="t('calculatedValue')"
-        @update:model-value="val => (distance = val)"
-        @update:selected-unit="changeDistanceUnit"
-        @clear="clearDistance"
-      />
-
-      <InputWithSelector
-        :label="t('time')"
-        :model-value="time"
-        :selected-unit="timeUnit"
-        :placeholder="timePlaceholder"
-        :options="timeOptions"
-        :is-visible="!!time && time.trim() !== ''"
-        :clear-title="t('clearTime')"
-        :unit-aria-label="t('timeUnitAria')"
-        :input-classes="timeClasses"
-        :is-calculated="calculatedField === 'time'"
-        :calculated-title="t('calculatedValue')"
-        @update:model-value="setTime"
-        @update:selected-unit="changeTimeUnit"
-        @clear="clearTime"
-      />
+  <div class="w-full max-w-md mx-auto space-y-3">
+    <div class="rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
+      <AppHeader />
 
       <div
-        v-if="outcome.kind === 'error'"
-        class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md flex items-start gap-2"
-        role="alert"
-        aria-live="polite"
+        class="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <p class="text-red-800 dark:text-red-200 text-sm">{{ resultMessage }}</p>
+        <p class="text-sm text-amber-800 dark:text-amber-200">
+          <span class="font-semibold">{{ t("infoLabel") }}</span>
+          {{ t("infoText") }}
+        </p>
       </div>
 
-      <p v-else-if="resultMessage" class="sr-only" aria-live="polite">{{ resultMessage }}</p>
+      <div class="space-y-4">
+        <InputWithSelector
+          :label="t('pace')"
+          :model-value="pace"
+          :selected-unit="paceUnit"
+          :placeholder="pacePlaceholder"
+          :options="paceOptions"
+          :is-visible="!!pace && pace.trim() !== ''"
+          :clear-title="t('clearPace')"
+          :unit-aria-label="t('paceUnitAria')"
+          :input-classes="paceClasses"
+          :is-calculated="calculatedField === 'pace'"
+          :calculated-title="t('calculatedValue')"
+          @update:model-value="val => (pace = val)"
+          @update:selected-unit="changePaceUnit"
+          @clear="clearPace"
+        />
 
-      <div class="flex gap-3 pt-2">
-        <button
-          type="button"
-          class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          @click="calculate"
+        <InputWithSelector
+          :label="t('distance')"
+          :model-value="distance"
+          :selected-unit="distanceUnit"
+          :placeholder="distancePlaceholder"
+          :options="distanceOptions"
+          :is-visible="distance.trim() !== ''"
+          :clear-title="t('clearDistance')"
+          :unit-aria-label="t('distanceUnitAria')"
+          :input-classes="distanceClasses"
+          :is-calculated="calculatedField === 'distance'"
+          :calculated-title="t('calculatedValue')"
+          @update:model-value="val => (distance = val)"
+          @update:selected-unit="changeDistanceUnit"
+          @clear="clearDistance"
+        />
+
+        <InputWithSelector
+          :label="t('time')"
+          :model-value="time"
+          :selected-unit="timeUnit"
+          :placeholder="timePlaceholder"
+          :options="timeOptions"
+          :is-visible="!!time && time.trim() !== ''"
+          :clear-title="t('clearTime')"
+          :unit-aria-label="t('timeUnitAria')"
+          :input-classes="timeClasses"
+          :is-calculated="calculatedField === 'time'"
+          :calculated-title="t('calculatedValue')"
+          @update:model-value="setTime"
+          @update:selected-unit="changeTimeUnit"
+          @clear="clearTime"
+        />
+
+        <div
+          v-if="outcome.kind === 'error'"
+          class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md flex items-start gap-2"
+          role="alert"
+          aria-live="polite"
         >
-          {{ t("calculate") }}
-        </button>
-        <button
-          type="button"
-          class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          @click="clear"
-        >
-          {{ t("clear") }}
-        </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p class="text-red-800 dark:text-red-200 text-sm">{{ resultMessage }}</p>
+        </div>
+
+        <p v-else-if="resultMessage" class="sr-only" aria-live="polite">{{ resultMessage }}</p>
+
+        <div class="flex gap-3 pt-2">
+          <button
+            type="button"
+            class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            @click="calculate"
+          >
+            {{ t("calculate") }}
+          </button>
+          <button
+            type="button"
+            class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            @click="clear"
+          >
+            {{ t("clear") }}
+          </button>
+        </div>
       </div>
-
-      <RecentCalculations :entries="recentCalculations" @select="applyHistory" />
     </div>
+
+    <RecentCalculations :entries="recentCalculations" @select="applyHistory" />
   </div>
 </template>
 

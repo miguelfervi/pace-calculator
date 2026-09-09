@@ -30,15 +30,23 @@ const formatTime = (entry: HistoryEntry, t: Translate): string => {
   return entry.time;
 };
 
-export const formatHistoryEntry = (entry: HistoryEntry, t: Translate): string => {
+export const formatHistoryParts = (
+  entry: HistoryEntry,
+  t: Translate
+): { inputs: string; result: string } => {
   const distance = formatDistance(entry, t);
   const time = formatTime(entry, t);
 
   if (entry.calculatedField === "time") {
-    return `${formatPace(entry, t, false)} · ${distance} → ${time}`;
+    return { inputs: `${formatPace(entry, t, false)} · ${distance}`, result: time };
   }
   if (entry.calculatedField === "pace") {
-    return `${distance} · ${time} → ${formatPace(entry, t, true)}`;
+    return { inputs: `${distance} · ${time}`, result: formatPace(entry, t, true) };
   }
-  return `${formatPace(entry, t, false)} · ${time} → ${distance}`;
+  return { inputs: `${formatPace(entry, t, false)} · ${time}`, result: distance };
+};
+
+export const formatHistoryEntry = (entry: HistoryEntry, t: Translate): string => {
+  const { inputs, result } = formatHistoryParts(entry, t);
+  return `${inputs} → ${result}`;
 };

@@ -146,7 +146,9 @@ describe("Calculator.vue", () => {
       .trigger("click");
 
     expect(wrapper.text()).toContain("Recientes");
-    expect(wrapper.text()).toContain("4:30 min · 1 km → 4:30");
+    expect(wrapper.text()).toContain("Pulsa para rellenar");
+    expect(wrapper.text()).toContain("4:30 min · 1 km");
+    expect(wrapper.text()).toContain("4:30");
 
     await wrapper
       .findAll("button")
@@ -154,7 +156,7 @@ describe("Calculator.vue", () => {
       .trigger("click");
     await wrapper
       .findAll("button")
-      .find(btn => btn.text() === "4:30 min · 1 km → 4:30")!
+      .find(btn => btn.attributes("aria-label")?.includes("4:30 min · 1 km → 4:30"))!
       .trigger("click");
 
     expect(inputs()[0].props("modelValue")).toBe("4:30");

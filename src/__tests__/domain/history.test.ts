@@ -5,7 +5,7 @@ import {
   fieldsFromHistory,
   type HistoryEntry,
 } from "../../domain/history";
-import { formatHistoryEntry } from "../../i18n/formatHistory";
+import { formatHistoryEntry, formatHistoryParts } from "../../i18n/formatHistory";
 import { messages } from "../../i18n/messages";
 
 const entry = (overrides: Partial<HistoryEntry> = {}): HistoryEntry => ({
@@ -60,9 +60,10 @@ describe("calculation history", () => {
 
   it("formats a recent row as inputs then result", () => {
     const t = (key: keyof typeof messages.es) => messages.es[key];
-    expect(formatHistoryEntry(entry({ distance: "1", time: "4:30" }), t)).toBe(
-      "4:30 min · 1 km → 4:30"
-    );
+    expect(formatHistoryParts(entry({ distance: "1", time: "4:30" }), t)).toEqual({
+      inputs: "4:30 min · 1 km",
+      result: "4:30",
+    });
     expect(formatHistoryEntry(entry({ calculatedField: "pace" }), t)).toBe(
       "10 km · 45:00 → 4:30 min/km"
     );

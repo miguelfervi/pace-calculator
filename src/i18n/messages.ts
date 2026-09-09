@@ -38,6 +38,7 @@ export const messages = {
     distanceUnitAria: "Unidad de distancia",
     timeUnitAria: "Unidad de tiempo",
     recent: "Recientes",
+    recentHint: "Pulsa para rellenar",
     useRecentCalculation: "Usar este cálculo",
   },
   en: {
@@ -77,6 +78,7 @@ export const messages = {
     distanceUnitAria: "Distance unit",
     timeUnitAria: "Time unit",
     recent: "Recent",
+    recentHint: "Tap to fill",
     useRecentCalculation: "Use this calculation",
   },
 } as const;

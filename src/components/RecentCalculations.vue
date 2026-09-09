@@ -1,17 +1,28 @@
 <template>
-  <section v-if="entries.length" class="pt-1" :aria-labelledby="headingId">
-    <h2 :id="headingId" class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-      {{ t("recent") }}
-    </h2>
-    <ul class="space-y-2">
+  <section
+    v-if="entries.length"
+    class="rounded-lg bg-white px-4 py-3 shadow dark:bg-gray-800 sm:px-6"
+    :aria-labelledby="headingId"
+  >
+    <div class="mb-1 flex items-baseline justify-between gap-2">
+      <h2 :id="headingId" class="text-xs font-semibold text-gray-600 dark:text-gray-300">
+        {{ t("recent") }}
+      </h2>
+      <p class="text-xs text-gray-400 dark:text-gray-500">{{ t("recentHint") }}</p>
+    </div>
+    <ul>
       <li v-for="item in items" :key="item.key">
         <button
           type="button"
-          class="w-full rounded-md border border-gray-200 px-3 py-2 text-left text-sm text-gray-800 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700"
+          class="flex min-h-11 w-full items-center gap-1 py-2.5 text-left text-xs transition-colors hover:text-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-blue-300"
           :aria-label="`${t('useRecentCalculation')}: ${item.label}`"
           @click="emit('select', item.entry)"
         >
-          {{ item.label }}
+          <span class="min-w-0 truncate text-gray-500 dark:text-gray-400">{{ item.inputs }}</span>
+          <span class="shrink-0 text-gray-300 dark:text-gray-600" aria-hidden="true">→</span>
+          <span class="shrink-0 font-medium text-gray-800 dark:text-gray-100">{{
+            item.result
+          }}</span>
         </button>
       </li>
     </ul>
@@ -21,7 +32,7 @@
 <script setup lang="ts">
 import { computed, useId } from "vue";
 import { historyEntryKey, type HistoryEntry } from "../domain/history";
-import { formatHistoryEntry } from "../i18n/formatHistory";
+import { formatHistoryParts } from "../i18n/formatHistory";
 import { useI18n } from "../composables/useI18n";
 
 const props = defineProps<{
@@ -36,10 +47,15 @@ const { t } = useI18n();
 const headingId = useId();
 
 const items = computed(() =>
-  props.entries.map(entry => ({
-    entry,
-    key: historyEntryKey(entry),
-    label: formatHistoryEntry(entry, t),
-  }))
+  props.entries.map(entry => {
+    const parts = formatHistoryParts(entry, t);
+    return {
+      entry,
+      key: historyEntryKey(entry),
+      label: `${parts.inputs} → ${parts.result}`,
+      inputs: parts.inputs,
+      result: parts.result,
+    };
+  })
 );
 </script>
